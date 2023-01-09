@@ -1,0 +1,38 @@
+[
+  {
+    "header": "Produced",
+    "subHeader": "Quantity",
+    "unit": "Widgets",
+    "footer": "Today",
+    "scale": "",
+    "value": 75,
+    "icon": "sap-icon://product"
+  },
+  {
+    "header": "Stations Idle",
+    "subHeader": "Quantity",
+    "unit": "Stations",
+    "footer": "",
+    "scale": "",
+    "value": 0,
+    "icon": "sap-icon://machine"
+  },
+  {
+    "header": "Scrapped",
+    "subHeader": "Quantity",
+    "unit": "Widgets",
+    "footer": "Today",
+    "scale": "",
+    "value": 3,
+    "icon": "sap-icon://reset"
+  },
+  {
+    "header": "Downtimes",
+    "subHeader": "",
+    "unit": "Incidents",
+    "footer": "Today",
+    "scale": "",
+    "value": 4,
+    "icon": "sap-icon://fob-watch"
+  }
+]

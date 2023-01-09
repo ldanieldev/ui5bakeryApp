@@ -1,0 +1,12 @@
+{
+  "enabled": true,
+  "name": "",
+  "description": "",
+  "category": "",
+  "image": "",
+  "imagePath": "",
+  "recipe": {
+    "operations": []
+  },
+  "tags": []
+}

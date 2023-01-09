@@ -1,0 +1,14 @@
+[
+  {
+    "reason": "Machine malfunction",
+    "count": 1
+  },
+  {
+    "reason": "Human error",
+    "count": 1
+  },
+  {
+    "reason": "Poor Quality Components",
+    "count": 1
+  }
+]

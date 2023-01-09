@@ -1,0 +1,47 @@
+*,
+*::before {
+  outline: none !important;
+}
+.removeInputBorder,
+.removeInputBorder > *,
+.noBorderSelect,
+.noBorderSelect * {
+  background: transparent !important;
+  border: none !important;
+}
+
+.bgTransparent {
+  background-color: transparent !important;
+}
+.alignLeft {
+  margin-left: 0;
+  margin-right: auto;
+  display: block;
+}
+.alignRight {
+  margin-left: auto;
+  margin-right: 0;
+  display: block;
+}
+.alignCenter {
+  margin: 0 auto;
+}
+.uiDisplayBlock {
+  display: block;
+}
+.removeBorder {
+  border: none !important;
+}
+
+.tallBtn {
+  min-height: 200px;
+  padding: 0;
+}
+.tallBtn .sapMBtnInner {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+.tallBtn .sapMBtnInner .sapMBtnContent {
+  width: 100%;
+}

@@ -1,0 +1,14 @@
+[
+  {
+    "reason": "Loose Valve",
+    "count": 1
+  },
+  {
+    "reason": "User Error",
+    "count": 2
+  },
+  {
+    "reason": "Sensor Calibration",
+    "count": 1
+  }
+]
