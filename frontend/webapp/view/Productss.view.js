@@ -60,7 +60,7 @@ sap.ui.define(
     Token
   ) {
     'use strict';
-    return View.extend('bakeryApp.view.Products', {
+    return View.extend('bakeryApp.view.Productss', {
       async: true,
 
       getAutoPrefixId: function () {
@@ -68,7 +68,7 @@ sap.ui.define(
       },
 
       getControllerName: function () {
-        return 'bakeryApp.controller.Products';
+        return 'bakeryApp.controller.Productss';
       },
 
       createContent: async function (oController) {
