@@ -130,9 +130,7 @@ sap.ui.define(
             } else if (oErr.statusCode) {
               MessageBox.error(oErr.statusText, { title: oErr.message });
             } else {
-              MessageBox.error(this.localizeText('error.default.message'), {
-                title: this.localizeText('error.default.title')
-              });
+              this._showDefaultErrorMessage();
             }
           },
           finally: () => {},
@@ -144,6 +142,12 @@ sap.ui.define(
           .catch(oParams.catch)
           .then(oParams.then)
           .finally(oParams.finally);
+      },
+
+      _showDefaultErrorMessage: function () {
+        MessageBox.error(this.localizeText('error.default.message'), {
+          title: this.localizeText('error.default.title')
+        });
       },
 
       /**
