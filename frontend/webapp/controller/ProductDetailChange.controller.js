@@ -122,7 +122,45 @@ sap.ui.define(
       },
 
       onEditRecipeStepPress: function (oEvent) {},
-      onDeleteRecipeStepPress: function (oEvent) {}
+
+      onDeleteRecipeStepPress: function (oEvent) {
+        const that = this,
+          oBindingContext = oEvent.getSource().getBindingContext(),
+          oRecipeStepData = oBindingContext.getObject(),
+          sStepName = this.formatter.toTitleCase(oRecipeStepData.description);
+
+        MessageBox.warning(
+          this.localizeText(
+            'dynamic.confirmDelete.text',
+            this.localizeText('product.title.recipeStep').toLowerCase()
+          ),
+          {
+            title: this.localizeText('dynamic.confirmDelete.title', [
+              sStepName
+            ]),
+            actions: [MessageBox.Action.YES, MessageBox.Action.CANCEL],
+            onClose: (sAction) => {
+              if (sAction === MessageBox.Action.YES) {
+                let oModel = oBindingContext.getModel(),
+                  oData = oModel.getData(),
+                  sPath = oBindingContext.getPath(),
+                  iIdx = parseInt(sPath.split('recipe/')[1], 10);
+
+                if (!isNaN(iIdx)) {
+                  oData.recipe = oData.recipe.slice(iIdx + 1);
+                  that._updateRecipeStepOrder(oData.recipe);
+                  oModel.setData(oData);
+                  oModel.updateBindings(true);
+                }
+              }
+            }
+          }
+        );
+      },
+
+      _updateRecipeStepOrder: function (aSteps) {
+        aSteps.forEach((oStep, iIdx) => (oStep.order = iIdx + 1));
+      }
     });
   }
 );

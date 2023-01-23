@@ -101,7 +101,7 @@ sap.ui.define(
             onClose: (sAction) => {
               if (sAction === MessageBox.Action.YES) {
                 this.getData(oModel, {
-                  url: this.sProductUrl + '62baafa55a8ef84b51fa9999', //+ this.sProductId,
+                  url: this.sProductUrl + this.sProductId,
                   type: 'DELETE',
                   then: () => {
                     if (oModel.getProperty('/id')) {
@@ -109,6 +109,8 @@ sap.ui.define(
                         that.localizeText('dynamic.toast.delete', sProductName),
                         { at: 'center center' }
                       );
+                    } else {
+                      that._showDefaultErrorMessage();
                     }
                   },
                   finally: () => {

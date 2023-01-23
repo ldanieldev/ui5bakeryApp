@@ -227,7 +227,7 @@ sap.ui.define(
                         level: 'H3',
                         titleStyle: 'H3'
                       }),
-                      new VBox({
+                      new VBox('recipeStepsContainer', {
                         width: '100%',
                         items: {
                           path: '/recipe',
