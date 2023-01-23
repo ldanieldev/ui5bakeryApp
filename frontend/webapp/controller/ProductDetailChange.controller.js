@@ -6,6 +6,7 @@ sap.ui.define(
     return BaseController.extend('bakeryApp.controller.ProductDetailChange', {
       onInit: function () {
         this.sProductUrl = this.getDataSources().products.uri;
+        this.oPage = this.byId('productDetailPage');
 
         let oRoute =
           this.getRouter().getRoute('productDetailEdit') ||
@@ -26,7 +27,7 @@ sap.ui.define(
 
       loadProductData: function (sProductId) {
         const oModel = new JSONModel(),
-          oComponent = this.byId('productDetailPage'),
+          oComponent = this.oPage,
           oController = this;
 
         oComponent.setBusy(true);
@@ -141,6 +142,8 @@ sap.ui.define(
             actions: [MessageBox.Action.YES, MessageBox.Action.CANCEL],
             onClose: (sAction) => {
               if (sAction === MessageBox.Action.YES) {
+                that.oPage.setBusy(true);
+
                 let oModel = oBindingContext.getModel(),
                   oData = oModel.getData(),
                   sPath = oBindingContext.getPath(),
@@ -152,6 +155,8 @@ sap.ui.define(
                   oModel.setData(oData);
                   oModel.updateBindings(true);
                 }
+
+                that.oPage.setBusy(false);
               }
             }
           }
