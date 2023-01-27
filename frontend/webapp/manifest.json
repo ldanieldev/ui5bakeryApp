@@ -72,7 +72,7 @@
       },
       "appSettings": {
         "type": "sap.ui.model.json.JSONModel",
-        "uri": "model/appSettings.json"
+        "uri": "model/AppSettings.json"
       }
     },
     "resources": {
