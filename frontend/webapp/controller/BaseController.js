@@ -144,6 +144,10 @@ sap.ui.define(
           .finally(oParams.finally);
       },
 
+      /**
+       * Convenience method to show a generic error message
+       * @private
+       */
       _showDefaultErrorMessage: function () {
         MessageBox.error(this.localizeText('error.default.message'), {
           title: this.localizeText('error.default.title')
@@ -152,7 +156,7 @@ sap.ui.define(
 
       /**
        * Convenience method to apply filters to tables as well as setting dyanmic no data text.
-       * @public
+       * @private
        * @param {sap.m.Table/sap.f.GridList} oList table/gridList object filters should be applied to
        * @param {Array} aFilters array of filters to be applied
        * @param {String} sEntityI18nCode i18n key for the entity of the table for no data text
