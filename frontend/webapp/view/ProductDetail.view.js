@@ -69,12 +69,13 @@ sap.ui.define(
                   heading: new Title({ text: '{/name}' }),
                   actions: [
                     new Button({
-                      text: '{i18n>Edit}',
-                      type: 'Emphasized',
+                      icon: 'sap-icon://edit',
+                      tooltip: '{i18n>Edit}',
                       press: [oController.onEditProductPress, oController]
                     }),
                     new Button({
-                      text: '{i18n>Delete}',
+                      icon: 'sap-icon://delete',
+                      tooltip: '{i18n>Delete}',
                       press: [oController.onDeleteProductPress, oController]
                     })
                   ]

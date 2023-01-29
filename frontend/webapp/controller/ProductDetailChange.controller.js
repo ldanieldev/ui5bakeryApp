@@ -1,12 +1,39 @@
 sap.ui.define(
-  ['./BaseController', 'sap/ui/model/json/JSONModel', 'sap/m/MessageBox'],
-  function (BaseController, JSONModel, MessageBox) {
+  [
+    './BaseController',
+    'sap/ui/model/json/JSONModel',
+    'sap/m/MessageBox',
+    'sap/m/MessageToast',
+    'sap/ui/model/Filter',
+    'sap/ui/model/FilterOperator',
+    'sap/m/Token',
+    'sap/ui/core/Fragment',
+    'sap/m/Label',
+    'sap/m/TextArea'
+  ],
+  function (
+    BaseController,
+    JSONModel,
+    MessageBox,
+    MessageToast,
+    Filter,
+    FilterOperator,
+    Token,
+    Fragment,
+    Label,
+    TextArea
+  ) {
     'use strict';
 
     return BaseController.extend('bakeryApp.controller.ProductDetailChange', {
       onInit: function () {
         this.sProductUrl = this.getDataSources().products.uri;
+        this.sIngredientUrl = this.getDataSources().ingredients.uri;
         this.oPage = this.byId('productDetailPage');
+        this.oNewRecipeStepFragmentId = this.createId('newRecipeStepFragment');
+        this.oNewRecipeStepDialog;
+        this.oAvailableIngredientTable;
+        this.oSelectedIngredientTable;
 
         let oRoute =
           this.getRouter().getRoute('productDetailEdit') ||
@@ -122,9 +149,7 @@ sap.ui.define(
         );
       },
 
-      onEditRecipeStepPress: function (oEvent) {},
-
-      onDeleteRecipeStepPress: function (oEvent) {
+      onDeleteRecipeStepBtnPress: function (oEvent) {
         const that = this,
           oBindingContext = oEvent.getSource().getBindingContext(),
           oRecipeStepData = oBindingContext.getObject(),
@@ -165,6 +190,245 @@ sap.ui.define(
 
       _updateRecipeStepOrder: function (aSteps) {
         aSteps.forEach((oStep, iIdx) => (oStep.order = iIdx + 1));
+      },
+
+      onAddRecipeStepBtnPress: function (oEvent) {
+        this._loadRecipeStepDialogFragment(() => {
+          this.oNewRecipeStepDialog
+            .setModel(new JSONModel('./model/RecipeStep.json'))
+            .open();
+        });
+      },
+
+      onEditRecipeStepBtnPress: function (oEvent) {
+        const oBindingContext = oEvent.getSource().getBindingContext(),
+          oRecipeStepData = oBindingContext.getObject();
+
+        this._loadRecipeStepDialogFragment(() => {
+          this.oNewRecipeStepDialog
+            .setModel(new JSONModel(oRecipeStepData))
+            .open();
+        });
+      },
+
+      /*************************************************************************
+       *                         fragment functions                            *
+       *************************************************************************/
+      _loadRecipeStepDialogFragment: function (callback = () => {}) {
+        if (this.oNewRecipeStepDialog) {
+          this.loadIngredientListData();
+          callback();
+          return;
+        }
+
+        this.loadFragment({
+          name: 'bakeryApp.view.ProductRecipeStepDialog',
+          type: 'JS',
+          id: this.oNewRecipeStepFragmentId
+        }).then((oDialog) => {
+          if (!oDialog) {
+            this._showDefaultErrorMessage();
+            return;
+          }
+
+          this.oNewRecipeStepDialog = oDialog;
+
+          this.oAvailableIngredientTable = Fragment.byId(
+            this.oNewRecipeStepFragmentId,
+            'availableIngredientTable'
+          );
+          this.oSelectedIngredientTable = Fragment.byId(
+            this.oNewRecipeStepFragmentId,
+            'selectedIngredientTable'
+          );
+
+          this.loadIngredientListData();
+          callback();
+        });
+      },
+
+      onFilterIngredients: function (oEvent) {
+        const sQuery =
+          oEvent.getParameter('query') || oEvent.getParameter('newValue');
+        let aFilters = [];
+
+        if (sQuery) {
+          aFilters = [
+            new Filter({
+              filters: [new Filter('name', FilterOperator.Contains, sQuery)],
+              and: false
+            })
+          ];
+        }
+
+        this._applySearchFilter(
+          Fragment.byId(
+            this.oNewRecipeStepFragmentId,
+            'availableIngredientTable'
+          ),
+          aFilters,
+          'entity.ingredient.plural'
+        );
+      },
+
+      loadIngredientListData: function () {
+        const oModel = new JSONModel(),
+          oComponent = this.oAvailableIngredientTable;
+
+        oComponent.setBusy(true);
+
+        this.getData(oModel, {
+          url: this.sIngredientUrl,
+          then: () => oComponent.setModel(oModel),
+          finally: () => oComponent.setBusy(false)
+        });
+      },
+
+      onAddInstructionBtnPress: function (oEvent) {
+        const oInstructionForm = Fragment.byId(
+            this.oNewRecipeStepFragmentId,
+            'instructionForm'
+          ),
+          oFormContent = oInstructionForm.getContent(),
+          iIndex = oFormContent.length / 2 + 1;
+
+        oInstructionForm.insertContent(
+          new Label({ text: iIndex, required: false }),
+          oFormContent.length
+        );
+        oInstructionForm.insertContent(
+          new TextArea({
+            value: `{/instructions/${iIndex - 1}/}`
+          }).addEventDelegate({
+            onAfterRendering: (oAfterRender) => {
+              const oTextArea = oAfterRender.srcControl;
+
+              oTextArea.focus();
+              document.querySelector(`#${oTextArea.sId}`).scrollIntoView();
+            }
+          }),
+          oFormContent.length + 1
+        );
+      },
+
+      onRemoveLastInstructionBtnPress: function (oEvent) {
+        const oInstructionForm = Fragment.byId(
+            this.oNewRecipeStepFragmentId,
+            'instructionForm'
+          ),
+          oModel = oInstructionForm.getModel();
+
+        let oFormContentMaxIndex = oInstructionForm.getContent().length - 1,
+          aContexts = oModel.getProperty('/instructions'),
+          sInstruction = oInstructionForm
+            .getContent()
+            [oFormContentMaxIndex].getValue();
+
+        if (oFormContentMaxIndex > 1) {
+          //remove data from model
+          oModel.setProperty(
+            '/instructions',
+            aContexts.filter((oContext) => oContext !== sInstruction)
+          );
+
+          //remove control from form
+          oInstructionForm.removeContent(oFormContentMaxIndex--);
+          oInstructionForm.removeContent(oFormContentMaxIndex);
+        }
+      },
+
+      onNewRecipeStepSubmitBtnPress: function (oEvent) {},
+
+      moveToSelectedIngredientsTable: function (oEvent) {},
+
+      moveToAvailableProductsTable: function (oEvent) {},
+
+      onAvailableIngredientsTableDrop: function (oEvent) {
+        const oDraggedItem = oEvent.getParameter('draggedControl'),
+          oDraggedItemContext = oDraggedItem.getBindingContext(),
+          oDraggedItemJson = oDraggedItemContext.getObject();
+
+        if (!oDraggedItemContext) {
+          return;
+        }
+
+        let oModel = this.oAvailableIngredientTable.getModel(),
+          iIndex = oModel.getProperty('/').length,
+          oSelectedIngredentsModel = oDraggedItemContext.oModel,
+          aSelectedIngredentsData =
+            oSelectedIngredentsModel.getProperty('/ingredients');
+
+        if (aSelectedIngredentsData && aSelectedIngredentsData.length > 0) {
+          //remove amount attribute before moving to table
+          delete oDraggedItemJson.amount;
+
+          //move data object to table model
+          oModel.setProperty(
+            `/${iIndex}`,
+            oDraggedItemJson,
+            oDraggedItemContext
+          );
+
+          //remove ingredient from list of selected ingredients
+          oSelectedIngredentsModel.setProperty(
+            '/ingredients',
+            aSelectedIngredentsData.filter(
+              (oIngredient) => oIngredient.id !== oDraggedItemJson.id
+            )
+          );
+        }
+
+        this.validateSelectedIngredientsAmount();
+      },
+
+      onSelectedIngredientsTableDrop: function (oEvent) {
+        const oDraggedItem = oEvent.getParameter('draggedControl'),
+          oDraggedItemContext = oDraggedItem.getBindingContext(),
+          oDraggedItemJson = oDraggedItemContext.getObject();
+
+        if (!oDraggedItemContext) {
+          return;
+        }
+
+        let oModel = this.oSelectedIngredientTable.getModel(),
+          iIndex = oModel.getProperty('/ingredients').length,
+          oAvailableIngredentsModel = oDraggedItemContext.oModel,
+          aAvailableIngredentsData = oAvailableIngredentsModel.getProperty('/');
+
+        if (aAvailableIngredentsData && aAvailableIngredentsData.length > 0) {
+          oModel.setProperty(
+            `/ingredients/${iIndex}`,
+            oDraggedItemJson,
+            oDraggedItemContext
+          );
+
+          //remove ingredient from list of available ingredients
+          oAvailableIngredentsModel.setData(
+            aAvailableIngredentsData.filter(
+              (oIngredient) => oIngredient.id !== oDraggedItemJson.id
+            )
+          );
+        }
+
+        this.validateSelectedIngredientsAmount();
+      },
+
+      validateSelectedIngredientsAmount: function () {
+        let bIsValid = true;
+
+        this.oSelectedIngredientTable.getItems().forEach((oItem) => {
+          let oInput = oItem.getCells()[1],
+            fAmount = parseFloat(oInput.getValue());
+
+          if (isNaN(fAmount)) {
+            bIsValid = false;
+            oInput.setValueState('Error');
+          } else {
+            oInput.setValueState('Success');
+          }
+        });
+
+        return bIsValid;
       }
     });
   }

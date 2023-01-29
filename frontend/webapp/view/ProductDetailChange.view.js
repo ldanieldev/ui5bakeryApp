@@ -8,7 +8,7 @@ sap.ui.define(
     'sap/m/Title',
     'sap/m/Input',
     'sap/m/Select',
-    'sap/ui/core/ListItem',
+    'sap/ui/core/Item',
     'sap/m/TextArea',
     'sap/m/Label',
     'sap/m/Text',
@@ -38,7 +38,7 @@ sap.ui.define(
     Title,
     Input,
     Select,
-    ListItem,
+    Item,
     TextArea,
     Label,
     Text,
@@ -103,6 +103,7 @@ sap.ui.define(
                           new FileUploader('imageInput', {
                             buttonOnly: true,
                             maximumFileSize: 0.5,
+                            icon: 'sap-icon://add-photo',
                             fileType: 'jpg,png',
                             style: 'Emphasized',
                             value: '{/imagePath}',
@@ -139,7 +140,7 @@ sap.ui.define(
                                 selectedKey: '{/category}',
                                 items: {
                                   path: 'appSettings>/productCategories',
-                                  template: new ListItem({
+                                  template: new Item({
                                     key: '{appSettings>key}',
                                     text: {
                                       parts: [
@@ -248,7 +249,7 @@ sap.ui.define(
                                   icon: 'sap-icon://edit',
                                   type: 'Emphasized',
                                   press: [
-                                    oController.onEditRecipeStepPress,
+                                    oController.onEditRecipeStepBtnPress,
                                     oController
                                   ]
                                 }),
@@ -256,7 +257,7 @@ sap.ui.define(
                                   tooltip: '{i18n>Delete}',
                                   icon: 'sap-icon://delete',
                                   press: [
-                                    oController.onDeleteRecipeStepPress,
+                                    oController.onDeleteRecipeStepBtnPress,
                                     oController
                                   ]
                                 })
@@ -299,7 +300,16 @@ sap.ui.define(
                             ]
                           }).addStyleClass('sapUiSmallMarginTop')
                         }
-                      })
+                      }),
+                      new Button({
+                        icon: 'sap-icon://add-activity',
+                        type: 'Emphasized',
+                        text: '{i18n>product.form.button.addRecipeStep.tooltip}',
+                        press: [
+                          oController.onAddRecipeStepBtnPress,
+                          oController
+                        ]
+                      }).addStyleClass('sapUiTinyMarginTop')
                     ]
                   })
                 ]

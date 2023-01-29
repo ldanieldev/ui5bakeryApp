@@ -3,6 +3,6 @@
   "description": null,
   "target": null,
   "targetUom": null,
-  "instructions": [],
+  "instructions": [{ "order": 1, "instruction": null }],
   "ingredients": []
 }

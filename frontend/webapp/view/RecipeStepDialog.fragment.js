@@ -22,7 +22,9 @@ sap.ui.define(
     'sap/m/ObjectNumber',
     'sap/ui/core/dnd/DragInfo',
     'sap/ui/core/dnd/DropInfo',
-    'sap/ui/core/dnd/DragDropInfo'
+    'sap/ui/core/dnd/DragDropInfo',
+    'sap/m/List',
+    'sap/m/CustomListItem'
   ],
   function (
     Dialog,
@@ -47,14 +49,15 @@ sap.ui.define(
     ObjectNumber,
     DragInfo,
     DropInfo,
-    DragDropInfo
+    DragDropInfo,
+    List,
+    CustomListItem
   ) {
     return {
       createContent: function (oController) {
         return new Dialog({
-          showHeader: false,
-          contentHeight: '70%',
-          contentWidth: '80%',
+          showHeader: true,
+          contentWidth: '75%',
           content: [
             new FlexBox({
               width: '100%',
@@ -63,7 +66,7 @@ sap.ui.define(
               items: [
                 new Label({
                   required: true,
-                  text: '{i18n>productWizard.recipeStep.label.stepName}:',
+                  text: '{i18n>recipeStepDialog.label.stepName}:',
                   labelFor: 'recipeStepNameInput'
                 }),
                 new Input(this.createId('recipeStepNameInput'), {
@@ -73,7 +76,7 @@ sap.ui.define(
 
                 new Label({
                   required: true,
-                  text: '{i18n>productWizard.recipeStep.label.stepTarget}:',
+                  text: '{i18n>recipeStepDialog.label.stepTarget}:',
                   labelFor: 'recipeStepTypeInput'
                 }),
 
@@ -132,7 +135,7 @@ sap.ui.define(
                           new MenuItem({
                             text: {
                               parts: [
-                                'i18n>productWizard.recipeStep.moveToSelectedEntity',
+                                'i18n>recipeStepDialog.moveToSelectedEntity',
                                 'i18n>entity.ingredient.plural'
                               ],
                               formatter: oController.formatter.formatMessage
@@ -251,7 +254,7 @@ sap.ui.define(
                           new MenuItem({
                             text: {
                               parts: [
-                                'i18n>productWizard.recipeStep.removeFromSelectedEntity',
+                                'i18n>recipeStepDialog.removeFromSelectedEntity',
                                 'i18n>entity.ingredient.plural'
                               ],
                               formatter: oController.formatter.formatMessage
@@ -284,7 +287,7 @@ sap.ui.define(
                         }),
                         new Column({
                           header: new Text({
-                            text: '{i18n>productWizard.recipeStep.columnHeading.amount}'
+                            text: '{i18n>recipeStepDialog.columnHeading.amount}'
                           })
                         }),
                         new Column({
@@ -350,50 +353,42 @@ sap.ui.define(
 
                 new Label({
                   required: true,
-                  text: '{i18n>productWizard.recipeStep.label.intructions}:',
+                  text: '{i18n>recipeStepDialog.label.intructions}:',
                   labelFor: 'recipeStepNameInput'
+                }).addStyleClass('sapUiSmallMarginBottom'),
+
+                new List(this.createId('instructionForm'), {
+                  items: {
+                    path: '/instructions',
+                    template: new CustomListItem({
+                      content: [
+                        new Label({ text: '{order}:' }),
+                        new TextArea({
+                          width: '90%',
+                          value: '{instruction}'
+                        }).addStyleClass('sapUiMediumMarginBeginEnd'),
+                        new Button({
+                          icon: 'sap-icon://decline',
+                          type: 'Transparent',
+                          press: [
+                            oController.onRemoveLastInstructionBtnPress,
+                            oController
+                          ],
+                          tooltip:
+                            '{i18n>recipeStepDialog.button.removeInstruction.tooltip}'
+                        })
+                      ]
+                    }).addStyleClass('sapUiSmallMarginBottom')
+                  }
                 }),
 
-                new SimpleForm(this.createId('instructionForm'), {
-                  width: '90%',
-                  layout: 'ResponsiveGridLayout',
-                  content: [
-                    new Label({
-                      required: true,
-                      text: '1'
-                    }),
-                    new TextArea({
-                      value: '{/instructions/0/}'
-                    })
-                  ]
-                }),
-
-                new FlexBox({
-                  width: '100%',
-                  direction: 'Row',
-                  justifyContent: 'SpaceBetween',
-                  items: [
-                    new Button({
-                      icon: 'sap-icon://add',
-                      type: 'Accept',
-                      press: [
-                        oController.onAddInstructionBtnPress,
-                        oController
-                      ],
-                      tooltip:
-                        '{i18n>productWizard.recipeStep.button.addInstruction.tooltip}'
-                    }).addStyleClass('sapUiSmallMarginRight'),
-                    new Button({
-                      icon: 'sap-icon://less',
-                      type: 'Reject',
-                      press: [
-                        oController.onRemoveLastInstructionBtnPress,
-                        oController
-                      ],
-                      tooltip:
-                        '{i18n>productWizard.recipeStep.button.removeInstruction.tooltip}'
-                    })
-                  ]
+                new Button({
+                  icon: 'sap-icon://add',
+                  //type: 'Accept',
+                  type: 'Emphasized',
+                  press: [oController.onAddInstructionBtnPress, oController],
+                  tooltip:
+                    '{i18n>recipeStepDialog.button.addInstruction.tooltip}'
                 })
               ]
             })
