@@ -206,6 +206,13 @@ sap.ui.define(
       onAddRecipeStepBtnPress: function (oEvent) {
         this._loadRecipeStepDialogFragment(() => {
           this.oRecipeStepDialog
+            .setTitle(
+              this.formatter.toTitleCase(
+                this.localizeText('dynamic.form.title.add', [
+                  this.localizeText('entity.recipeStep')
+                ])
+              )
+            )
             .setModel(new JSONModel('./model/RecipeStep.json'))
             .open();
         });
@@ -217,6 +224,13 @@ sap.ui.define(
 
         this._loadRecipeStepDialogFragment(() => {
           this.oRecipeStepDialog
+            .setTitle(
+              this.formatter.toTitleCase(
+                this.localizeText('dynamic.form.title.edit', [
+                  this.localizeText('entity.recipeStep')
+                ])
+              )
+            )
             .setModel(new JSONModel(oRecipeStepData))
             .open();
         });
