@@ -154,7 +154,9 @@ sap.ui.define(
           oBindingContext = oEvent.getSource().getBindingContext(),
           oRecipeStepData = oBindingContext.getObject(),
           sStepName = this.formatter.toTitleCase(oRecipeStepData.description),
-          sTitle = this.localizeText('dynamic.confirmDelete.title'[sStepName]),
+          sTitle = this.localizeText('dynamic.confirmDelete.title', [
+            sStepName
+          ]),
           sText = this.localizeText(
             'dynamic.confirmDelete.text',
             this.localizeText('product.title.recipeStep').toLowerCase()
@@ -168,25 +170,22 @@ sap.ui.define(
               that.oPage.setBusy(true);
 
               let oModel = oBindingContext.getModel(),
-                oData = oModel.getData(),
-                sPath = oBindingContext.getPath(),
-                iIdx = parseInt(sPath.split('recipe/')[1], 10);
+                sPath = '/recipe',
+                aData = oModel.getProperty(sPath);
 
-              if (!isNaN(iIdx)) {
-                oData.recipe = oData.recipe.slice(iIdx + 1);
-                that._updateRecipeStepOrder(oData.recipe);
-                oModel.setData(oData);
-                oModel.updateBindings(true);
-              }
+              //remove object from array
+              aData = aData.filter((oElement) => oElement !== oRecipeStepData);
+
+              //re-order the instructions
+              aData.forEach((oElement, iIdx) => (oElement.order = iIdx + 1));
+
+              //update model data
+              oModel.setProperty(sPath, aData);
 
               that.oPage.setBusy(false);
             }
           }
         });
-      },
-
-      _updateRecipeStepOrder: function (aSteps) {
-        aSteps.forEach((oStep, iIdx) => (oStep.order = iIdx + 1));
       },
 
       onAddRecipeStepBtnPress: function (oEvent) {
@@ -301,9 +300,12 @@ sap.ui.define(
             'instructionList'
           ),
           oModel = oInstructionList.getModel(),
-          oObjectToRemove = oEvent.getSource().getBindingContext().getObject();
+          oObjectToRemove = oEvent.getSource().getBindingContext().getObject(),
+          sPath = '/instructions';
 
-        let aData = oModel.getProperty('/instructions');
+        oInstructionList.setBusy(true);
+
+        let aData = oModel.getProperty(sPath);
 
         //remove object from array
         aData = aData.filter((oElement) => oElement !== oObjectToRemove);
@@ -312,7 +314,9 @@ sap.ui.define(
         aData.forEach((oElement, iIdx) => (oElement.order = iIdx + 1));
 
         //update model data
-        oModel.setProperty('/instructions', aData);
+        oModel.setProperty(sPath, aData);
+
+        oInstructionList.setBusy(false);
       },
 
       onNewRecipeStepSubmitBtnPress: function (oEvent) {},
