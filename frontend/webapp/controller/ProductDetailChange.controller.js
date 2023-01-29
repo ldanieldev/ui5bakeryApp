@@ -30,8 +30,8 @@ sap.ui.define(
         this.sProductUrl = this.getDataSources().products.uri;
         this.sIngredientUrl = this.getDataSources().ingredients.uri;
         this.oPage = this.byId('productDetailPage');
-        this.oNewRecipeStepFragmentId = this.createId('newRecipeStepFragment');
-        this.oNewRecipeStepDialog;
+        this.oRecipeStepFragmentId = this.createId('recipeStepDialogFragment');
+        this.oRecipeStepDialog;
         this.oAvailableIngredientTable;
         this.oSelectedIngredientTable;
 
@@ -194,7 +194,7 @@ sap.ui.define(
 
       onAddRecipeStepBtnPress: function (oEvent) {
         this._loadRecipeStepDialogFragment(() => {
-          this.oNewRecipeStepDialog
+          this.oRecipeStepDialog
             .setModel(new JSONModel('./model/RecipeStep.json'))
             .open();
         });
@@ -205,7 +205,7 @@ sap.ui.define(
           oRecipeStepData = oBindingContext.getObject();
 
         this._loadRecipeStepDialogFragment(() => {
-          this.oNewRecipeStepDialog
+          this.oRecipeStepDialog
             .setModel(new JSONModel(oRecipeStepData))
             .open();
         });
@@ -215,7 +215,7 @@ sap.ui.define(
        *                         fragment functions                            *
        *************************************************************************/
       _loadRecipeStepDialogFragment: function (callback = () => {}) {
-        if (this.oNewRecipeStepDialog) {
+        if (this.oRecipeStepDialog) {
           this.loadIngredientListData();
           callback();
           return;
@@ -224,21 +224,21 @@ sap.ui.define(
         this.loadFragment({
           name: 'bakeryApp.view.RecipeStepDialog',
           type: 'JS',
-          id: this.oNewRecipeStepFragmentId
+          id: this.oRecipeStepFragmentId
         }).then((oDialog) => {
           if (!oDialog) {
             this._showDefaultErrorMessage();
             return;
           }
 
-          this.oNewRecipeStepDialog = oDialog;
+          this.oRecipeStepDialog = oDialog;
 
           this.oAvailableIngredientTable = Fragment.byId(
-            this.oNewRecipeStepFragmentId,
+            this.oRecipeStepFragmentId,
             'availableIngredientTable'
           );
           this.oSelectedIngredientTable = Fragment.byId(
-            this.oNewRecipeStepFragmentId,
+            this.oRecipeStepFragmentId,
             'selectedIngredientTable'
           );
 
@@ -262,10 +262,7 @@ sap.ui.define(
         }
 
         this._applySearchFilter(
-          Fragment.byId(
-            this.oNewRecipeStepFragmentId,
-            'availableIngredientTable'
-          ),
+          Fragment.byId(this.oRecipeStepFragmentId, 'availableIngredientTable'),
           aFilters,
           'entity.ingredient.plural'
         );
@@ -284,37 +281,27 @@ sap.ui.define(
         });
       },
 
-      onAddInstructionBtnPress: function (oEvent) {
-        const oInstructionForm = Fragment.byId(
-            this.oNewRecipeStepFragmentId,
-            'instructionForm'
-          ),
-          oFormContent = oInstructionForm.getContent(),
-          iIndex = oFormContent.length / 2 + 1;
-
-        oInstructionForm.insertContent(
-          new Label({ text: iIndex, required: false }),
-          oFormContent.length
-        );
-        oInstructionForm.insertContent(
-          new TextArea({
-            value: `{/instructions/${iIndex - 1}/}`
-          }).addEventDelegate({
-            onAfterRendering: (oAfterRender) => {
-              const oTextArea = oAfterRender.srcControl;
-
-              oTextArea.focus();
-              document.querySelector(`#${oTextArea.sId}`).scrollIntoView();
-            }
-          }),
-          oFormContent.length + 1
-        );
+      formatRemoveInstructionEnabled: function (sOrder) {
+        return sOrder && parseInt(sOrder, 10) < 2 ? false : true;
       },
 
-      onRemoveLastInstructionBtnPress: function (oEvent) {
+      onAddInstructionBtnPress: function (oEvent) {
+        const oInstructionList = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'instructionList'
+          ),
+          oModel = oInstructionList.getModel(),
+          aData = oModel.getProperty('/instructions'),
+          iNextIndex = aData[aData.length - 1].order + 1;
+
+        aData.push({ order: iNextIndex, instruction: null });
+        oModel.setProperty('/instructions', aData);
+      },
+
+      onRemoveInstructionBtnPress: function (oEvent) {
         const oInstructionForm = Fragment.byId(
-            this.oNewRecipeStepFragmentId,
-            'instructionForm'
+            this.oRecipeStepFragmentId,
+            'instructionList'
           ),
           oModel = oInstructionForm.getModel();
 

@@ -357,7 +357,7 @@ sap.ui.define(
                   labelFor: 'recipeStepNameInput'
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
-                new List(this.createId('instructionForm'), {
+                new List(this.createId('instructionList'), {
                   items: {
                     path: '/instructions',
                     template: new CustomListItem({
@@ -370,8 +370,13 @@ sap.ui.define(
                         new Button({
                           icon: 'sap-icon://decline',
                           type: 'Transparent',
+                          enabled: {
+                            path: 'order',
+                            formatter:
+                              oController.formatRemoveInstructionEnabled
+                          },
                           press: [
-                            oController.onRemoveLastInstructionBtnPress,
+                            oController.onRemoveInstructionBtnPress,
                             oController
                           ],
                           tooltip:
