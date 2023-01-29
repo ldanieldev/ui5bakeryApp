@@ -354,10 +354,11 @@ sap.ui.define(
                 new Label({
                   required: true,
                   text: '{i18n>recipeStepDialog.label.intructions}:',
-                  labelFor: 'recipeStepNameInput'
+                  labelFor: 'instructionList'
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
                 new List(this.createId('instructionList'), {
+                  busyIndicatorDelay: 1,
                   items: {
                     path: '/instructions',
                     template: new CustomListItem({
@@ -389,7 +390,6 @@ sap.ui.define(
 
                 new Button({
                   icon: 'sap-icon://add',
-                  //type: 'Accept',
                   type: 'Emphasized',
                   press: [oController.onAddInstructionBtnPress, oController],
                   tooltip:
