@@ -222,7 +222,7 @@ sap.ui.define(
         }
 
         this.loadFragment({
-          name: 'bakeryApp.view.ProductRecipeStepDialog',
+          name: 'bakeryApp.view.RecipeStepDialog',
           type: 'JS',
           id: this.oNewRecipeStepFragmentId
         }).then((oDialog) => {
