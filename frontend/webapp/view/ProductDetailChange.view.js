@@ -160,6 +160,7 @@ sap.ui.define(
                               new MultiInput('tagInput', {
                                 busyIndicatorDelay: 1,
                                 showClearIcon: true,
+                                maxTokens: 5,
                                 showValueHelp: false,
                                 tokens: {
                                   path: '/tags',
@@ -168,6 +169,10 @@ sap.ui.define(
                                     text: '{tag}'
                                   })
                                 },
+                                change: [
+                                  oController.onTagInputChange,
+                                  oController
+                                ],
                                 tokenUpdate: [
                                   oController.onTagInputTokenUpdate,
                                   oController
@@ -189,7 +194,7 @@ sap.ui.define(
                                 labelFor: 'descriptionInput'
                               }),
                               new TextArea('descriptionInput', {
-                                rows: 9,
+                                rows: 5,
                                 value: {
                                   path: '/description',
                                   type: 'sap.ui.model.type.String'

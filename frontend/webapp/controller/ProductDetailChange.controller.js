@@ -93,13 +93,28 @@ sap.ui.define(
         return bEnabled ? 'sap-icon://accept' : 'sap-icon://cancel';
       },
 
+      onTagInputChange: function (oEvent) {
+        const oInput = oEvent.getSource(),
+          oModel = oInput.getModel(),
+          sNewTagValue = oEvent.getParameters().value,
+          sPath = '/tags';
+
+        if (sNewTagValue) {
+          let aData = oModel.getProperty(sPath);
+          aData.push({ tag: sNewTagValue });
+          oModel.setProperty(sPath, aData);
+          oInput.setValue('');
+        }
+      },
+
       onTagInputTokenUpdate: function (oEvent) {
         const { type, addedTokens, removedTokens } = oEvent.getParameters(),
-          oControl = oEvent.getSource(),
-          oModel = oControl.getModel();
+          oInput = oEvent.getSource(),
+          oModel = oInput.getModel(),
+          sPath = '/tags';
 
-        oControl.setBusy(true);
-        let aContexts = oModel.getProperty('/tags');
+        oInput.setBusy(true);
+        let aContexts = oModel.getProperty(sPath);
 
         if (type === 'added') {
           addedTokens.forEach((oToken) =>
@@ -113,8 +128,8 @@ sap.ui.define(
           });
         }
 
-        oModel.setProperty('/tags', aContexts);
-        oControl.setBusy(false);
+        oModel.setProperty(sPath, aContexts);
+        oInput.setBusy(false);
       },
 
       onEditCancelBtnPress: function (oEvent) {
