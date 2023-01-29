@@ -6,10 +6,7 @@ sap.ui.define(
     'sap/m/MessageToast',
     'sap/ui/model/Filter',
     'sap/ui/model/FilterOperator',
-    'sap/m/Token',
-    'sap/ui/core/Fragment',
-    'sap/m/Label',
-    'sap/m/TextArea'
+    'sap/ui/core/Fragment'
   ],
   function (
     BaseController,
@@ -18,10 +15,7 @@ sap.ui.define(
     MessageToast,
     Filter,
     FilterOperator,
-    Token,
-    Fragment,
-    Label,
-    TextArea
+    Fragment
   ) {
     'use strict';
 
@@ -133,6 +127,10 @@ sap.ui.define(
       },
 
       onEditCancelBtnPress: function (oEvent) {
+        this._returnToDisplayPage();
+      },
+
+      onSaveBtnPress: function (oEvent) {
         this._returnToDisplayPage();
       },
 
@@ -272,6 +270,29 @@ sap.ui.define(
         });
       },
 
+      _filterSelectedIngredients: function () {
+        const oAvailableIngredientsModel =
+            this.oAvailableIngredientTable.getModel(),
+          oAvailableIngredientsData =
+            oAvailableIngredientsModel.getProperty('/'),
+          oSelectedIngredentsData = this.oSelectedIngredientTable
+            .getModel()
+            .getProperty('/ingredients');
+
+        let afilteredArray = oAvailableIngredientsData.filter(
+          (oAvailableIngredient) => {
+            return (
+              oSelectedIngredentsData.filter(
+                (oSelectedIngredient) =>
+                  oAvailableIngredient.id === oSelectedIngredient.id
+              ).length === 0
+            );
+          }
+        );
+
+        oAvailableIngredientsModel.setProperty('/', afilteredArray);
+      },
+
       onFilterIngredients: function (oEvent) {
         const sQuery =
           oEvent.getParameter('query') || oEvent.getParameter('newValue');
@@ -301,7 +322,10 @@ sap.ui.define(
 
         this.getData(oModel, {
           url: this.sIngredientUrl,
-          then: () => oComponent.setModel(oModel),
+          then: () => {
+            oComponent.setModel(oModel);
+            this._filterSelectedIngredients();
+          },
           finally: () => oComponent.setBusy(false)
         });
       },
@@ -348,33 +372,73 @@ sap.ui.define(
         oInstructionList.setBusy(false);
       },
 
-      onNewRecipeStepSubmitBtnPress: function (oEvent) {},
-
       moveToSelectedIngredientsTable: function (oEvent) {},
 
-      moveToAvailableProductsTable: function (oEvent) {},
+      moveToAvailableProductsTable: function (oEvent) {
+        //get selected ingredient
+        const oSelectedIngredient =
+          this.oSelectedIngredientTable.getSelectedItem();
+
+        //show error if no ingredient selected
+        if (!oSelectedIngredient) {
+          MessageBox.warning(
+            this.localizeText(
+              'recipeStepDialog.messageBox.warning.moveSelectedIndregient.text'
+            )
+          );
+          return;
+        }
+
+        //
+        const oAvailableIngredientsModel =
+            this.oAvailableIngredientTable.getModel(),
+          oAvailableIngredentsData =
+            oAvailableIngredientsModel.getProperty('/'),
+          oSelectedIngredientsModel = this.oSelectedIngredientTable.getModel(),
+          oSelectedIngredientData = oSelectedIngredient
+            .getBindingContext()
+            .getObject();
+
+        //remove amount attribute before moving to table
+        delete oSelectedIngredientData.amount;
+
+        //add ingredient to available ingredient model
+        oAvailableIngredentsData.push(oSelectedIngredientData);
+        oAvailableIngredientsModel.setProperty('/', oAvailableIngredentsData);
+
+        //remove ingredient from selected ingredient model
+        oSelectedIngredientsModel.setProperty(
+          '/ingredients',
+          oSelectedIngredientsModel
+            .getProperty('/ingredients')
+            .filter(
+              (oIngredient) => oIngredient.id !== oSelectedIngredientData.id
+            )
+        );
+      },
 
       onAvailableIngredientsTableDrop: function (oEvent) {
         const oDraggedItem = oEvent.getParameter('draggedControl'),
           oDraggedItemContext = oDraggedItem.getBindingContext(),
-          oDraggedItemJson = oDraggedItemContext.getObject();
+          oDraggedItemJson = oDraggedItemContext.getObject(),
+          sPath = '/ingredients';
 
         if (!oDraggedItemContext) {
           return;
         }
 
-        let oModel = this.oAvailableIngredientTable.getModel(),
-          iIndex = oModel.getProperty('/').length,
+        let oAvailableIngredientsModel =
+            this.oAvailableIngredientTable.getModel(),
+          iIndex = oAvailableIngredientsModel.getProperty('/').length,
           oSelectedIngredentsModel = oDraggedItemContext.oModel,
-          aSelectedIngredentsData =
-            oSelectedIngredentsModel.getProperty('/ingredients');
+          aSelectedIngredentsData = oSelectedIngredentsModel.getProperty(sPath);
 
         if (aSelectedIngredentsData && aSelectedIngredentsData.length > 0) {
           //remove amount attribute before moving to table
           delete oDraggedItemJson.amount;
 
           //move data object to table model
-          oModel.setProperty(
+          oAvailableIngredientsModel.setProperty(
             `/${iIndex}`,
             oDraggedItemJson,
             oDraggedItemContext
@@ -382,7 +446,7 @@ sap.ui.define(
 
           //remove ingredient from list of selected ingredients
           oSelectedIngredentsModel.setProperty(
-            '/ingredients',
+            sPath,
             aSelectedIngredentsData.filter(
               (oIngredient) => oIngredient.id !== oDraggedItemJson.id
             )
@@ -395,20 +459,21 @@ sap.ui.define(
       onSelectedIngredientsTableDrop: function (oEvent) {
         const oDraggedItem = oEvent.getParameter('draggedControl'),
           oDraggedItemContext = oDraggedItem.getBindingContext(),
-          oDraggedItemJson = oDraggedItemContext.getObject();
+          oDraggedItemJson = oDraggedItemContext.getObject(),
+          sPath = '/ingredients';
 
         if (!oDraggedItemContext) {
           return;
         }
 
-        let oModel = this.oSelectedIngredientTable.getModel(),
-          iIndex = oModel.getProperty('/ingredients').length,
+        let oSelectedIngredientModel = this.oSelectedIngredientTable.getModel(),
+          iIndex = oSelectedIngredientModel.getProperty(sPath).length,
           oAvailableIngredentsModel = oDraggedItemContext.oModel,
           aAvailableIngredentsData = oAvailableIngredentsModel.getProperty('/');
 
         if (aAvailableIngredentsData && aAvailableIngredentsData.length > 0) {
-          oModel.setProperty(
-            `/ingredients/${iIndex}`,
+          oSelectedIngredientModel.setProperty(
+            `${sPath}/${iIndex}`,
             oDraggedItemJson,
             oDraggedItemContext
           );
@@ -440,7 +505,9 @@ sap.ui.define(
         });
 
         return bIsValid;
-      }
+      },
+
+      onNewRecipeStepSubmitBtnPress: function (oEvent) {}
     });
   }
 );
