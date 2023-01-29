@@ -218,7 +218,8 @@ sap.ui.define(
 
       onEditRecipeStepBtnPress: function (oEvent) {
         const oBindingContext = oEvent.getSource().getBindingContext(),
-          oRecipeStepData = oBindingContext.getObject();
+          oRecipeStepData = oBindingContext.getObject(),
+          oNewDataInstance = JSON.parse(JSON.stringify(oRecipeStepData));
 
         this._loadRecipeStepDialogFragment(() => {
           this.oRecipeStepDialog
@@ -229,7 +230,7 @@ sap.ui.define(
                 ])
               )
             )
-            .setModel(new JSONModel(oRecipeStepData))
+            .setModel(new JSONModel(oNewDataInstance))
             .open();
         });
       },
