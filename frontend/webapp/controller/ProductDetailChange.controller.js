@@ -373,15 +373,51 @@ sap.ui.define(
         oInstructionList.setBusy(false);
       },
 
-      moveToSelectedIngredientsTable: function (oEvent) {},
+      moveToSelectedIngredientsTable: function (oEvent) {
+        //get selected ingredient
+        const oSelectedItem = this.oAvailableIngredientTable.getSelectedItem();
+
+        //show error if no ingredient selected
+        if (!oSelectedItem) {
+          MessageBox.warning(
+            this.localizeText(
+              'recipeStepDialog.messageBox.warning.moveSelectedIndregient.text'
+            )
+          );
+          return;
+        }
+
+        //
+        const oAvailableIngredientsModel =
+            this.oAvailableIngredientTable.getModel(),
+          aAvailableIngredentsData =
+            oAvailableIngredientsModel.getProperty('/'),
+          oSelectedIngredientsModel = this.oSelectedIngredientTable.getModel(),
+          oSelectedIngredientsData =
+            oSelectedIngredientsModel.getProperty('/ingredients'),
+          oSelectedItemData = oSelectedItem.getBindingContext().getObject();
+
+        //add ingredient to selected ingredient model
+        oSelectedIngredientsData.push(oSelectedItemData);
+        oSelectedIngredientsModel.setProperty(
+          '/ingredients',
+          oSelectedIngredientsData
+        );
+
+        //remove ingredient from available ingredient model
+        oAvailableIngredientsModel.setData(
+          aAvailableIngredentsData.filter(
+            (oIngredient) => oIngredient.id !== oSelectedItemData.id
+          )
+        );
+      },
 
       moveToAvailableProductsTable: function (oEvent) {
         //get selected ingredient
-        const oSelectedIngredient =
-          this.oSelectedIngredientTable.getSelectedItem();
+        const oSelectedItem = this.oSelectedIngredientTable.getSelectedItem();
 
         //show error if no ingredient selected
-        if (!oSelectedIngredient) {
+        if (!oSelectedItem) {
           MessageBox.warning(
             this.localizeText(
               'recipeStepDialog.messageBox.warning.moveSelectedIndregient.text'
@@ -396,25 +432,23 @@ sap.ui.define(
           oAvailableIngredentsData =
             oAvailableIngredientsModel.getProperty('/'),
           oSelectedIngredientsModel = this.oSelectedIngredientTable.getModel(),
-          oSelectedIngredientData = oSelectedIngredient
-            .getBindingContext()
-            .getObject();
+          aSelectedIngredentsData =
+            oSelectedIngredientsModel.getProperty('/ingredients'),
+          oSelectedItemData = oSelectedItem.getBindingContext().getObject();
 
         //remove amount attribute before moving to table
-        delete oSelectedIngredientData.amount;
+        delete oSelectedItemData.amount;
 
         //add ingredient to available ingredient model
-        oAvailableIngredentsData.push(oSelectedIngredientData);
+        oAvailableIngredentsData.push(oSelectedItemData);
         oAvailableIngredientsModel.setProperty('/', oAvailableIngredentsData);
 
         //remove ingredient from selected ingredient model
         oSelectedIngredientsModel.setProperty(
           '/ingredients',
-          oSelectedIngredientsModel
-            .getProperty('/ingredients')
-            .filter(
-              (oIngredient) => oIngredient.id !== oSelectedIngredientData.id
-            )
+          aSelectedIngredentsData.filter(
+            (oIngredient) => oIngredient.id !== oSelectedItemData.id
+          )
         );
       },
 
