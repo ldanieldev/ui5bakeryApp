@@ -420,7 +420,7 @@ sap.ui.define(
           buttons: [
             new Button(this.createId('submitBtn'), {
               text: '{i18n>Submit}',
-              enabled: true,
+              enabled: false,
               type: 'Emphasized',
               press: [oController.onNewRecipeStepSubmitBtnPress, oController]
             }),
