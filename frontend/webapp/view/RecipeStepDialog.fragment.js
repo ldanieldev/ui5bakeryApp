@@ -67,9 +67,11 @@ sap.ui.define(
                   text: '{i18n>recipeStepDialog.label.stepName}:',
                   labelFor: 'recipeStepNameInput'
                 }),
-                new Input(this.createId('recipeStepNameInput'), {
+                new Input(this.createId('nameInput'), {
                   width: '40%',
-                  value: '{/description}'
+
+                  value: '{/description}',
+                  liveChange: [oController.validateRecipeStepForm, oController]
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
                 new Label({
@@ -83,12 +85,17 @@ sap.ui.define(
                   width: '20%',
                   justifyContent: 'SpaceBetween',
                   items: [
-                    new Input(this.createId('recipeStepTargetInput'), {
+                    new Input(this.createId('targetInput'), {
                       width: '100%',
-                      value: '{/target}'
+                      type: 'Number',
+                      value: '{/target}',
+                      liveChange: [
+                        oController.validateRecipeStepForm,
+                        oController
+                      ]
                     }),
 
-                    new Select(this.createId('recipeStepTargetUomSelect'), {
+                    new Select(this.createId('targetUomSelect'), {
                       width: '7rem',
                       forceSelection: false,
                       selectedKey: '{/targetUom}',
@@ -104,7 +111,8 @@ sap.ui.define(
                             formatter: oController.formatter.localizeText
                           }
                         })
-                      }
+                      },
+                      change: [oController.validateRecipeStepForm, oController]
                     })
                   ]
                 }).addStyleClass('sapUiSmallMarginBottom'),
@@ -115,10 +123,10 @@ sap.ui.define(
                     path: 'i18n>entity.ingredient.plural',
                     formatter: oController.formatter.toTitleCase
                   },
-                  labelFor: 'recipeStepIngredientSelect'
+                  labelFor: 'selectedIngredientTable'
                 }),
 
-                new FlexBox(this.createId('recipeStepIngredientSelect'), {
+                new FlexBox(this.createId('ingredientSelectContainer'), {
                   width: '100%',
                   direction: 'Row',
                   items: [
@@ -311,7 +319,7 @@ sap.ui.define(
                                 type: 'sap.ui.model.type.Float'
                               },
                               liveChange: [
-                                oController.validateSelectedIngredientsAmount,
+                                oController.validateRecipeStepForm,
                                 oController
                               ]
                             }),
@@ -364,7 +372,11 @@ sap.ui.define(
                         new Label({ text: '{order}:' }),
                         new TextArea({
                           width: '90%',
-                          value: '{instruction}'
+                          value: '{instruction}',
+                          liveChange: [
+                            oController.validateRecipeStepForm,
+                            oController
+                          ]
                         }).addStyleClass('sapUiMediumMarginBeginEnd'),
                         new Button({
                           icon: 'sap-icon://decline',
@@ -397,9 +409,9 @@ sap.ui.define(
             })
           ],
           buttons: [
-            new Button({
+            new Button(this.createId('submitBtn'), {
               text: '{i18n>Submit}',
-              enabled: false,
+              enabled: true,
               type: 'Emphasized',
               press: [oController.onNewRecipeStepSubmitBtnPress, oController]
             }),

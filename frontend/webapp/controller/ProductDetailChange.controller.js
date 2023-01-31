@@ -346,6 +346,8 @@ sap.ui.define(
 
         aData.push({ order: iNextIndex, instruction: null });
         oModel.setProperty('/instructions', aData);
+
+        this.validateRecipeStepForm();
       },
 
       onRemoveInstructionBtnPress: function (oEvent) {
@@ -410,6 +412,8 @@ sap.ui.define(
             (oIngredient) => oIngredient.id !== oSelectedItemData.id
           )
         );
+
+        this.validateRecipeStepForm();
       },
 
       moveToAvailableProductsTable: function (oEvent) {
@@ -487,8 +491,6 @@ sap.ui.define(
             )
           );
         }
-
-        this.validateSelectedIngredientsAmount();
       },
 
       onSelectedIngredientsTableDrop: function (oEvent) {
@@ -521,28 +523,101 @@ sap.ui.define(
           );
         }
 
-        this.validateSelectedIngredientsAmount();
+        this.validateRecipeStepForm();
       },
 
-      validateSelectedIngredientsAmount: function () {
-        let bIsValid = true;
+      validateRecipeStepForm: function () {
+        const oNameInput = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'nameInput'
+          ),
+          oTargetInput = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'targetInput'
+          ),
+          oTargetUomSelect = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'targetUomSelect'
+          ),
+          oIngredentTable = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'selectedIngredientTable'
+          ),
+          oInstructionList = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'instructionList'
+          ),
+          oSubmitBtn = Fragment.byId(this.oRecipeStepFragmentId, 'submitBtn');
 
-        this.oSelectedIngredientTable.getItems().forEach((oItem) => {
-          let oInput = oItem.getCells()[1],
-            fAmount = parseFloat(oInput.getValue());
+        oSubmitBtn.setEnabled(false);
 
-          if (isNaN(fAmount)) {
-            bIsValid = false;
-            oInput.setValueState('Error');
+        if (!oNameInput.getValue()) {
+          oNameInput.setValueState('Error');
+          return false;
+        } else {
+          oNameInput.setValueState('Success');
+        }
+
+        if (!oTargetInput.getValue()) {
+          oTargetInput.setValueState('Error');
+          return false;
+        } else {
+          oTargetInput.setValueState('Success');
+        }
+
+        if (!oTargetUomSelect.getSelectedKey()) {
+          oTargetUomSelect.setValueState('Error');
+          return false;
+        } else {
+          oTargetUomSelect.setValueState('Success');
+        }
+
+        if (oIngredentTable.getItems().length < 1) {
+          return false;
+        } else {
+          let isValidIngedients = true;
+
+          oIngredentTable.getItems().forEach((oItem) => {
+            let oCells = oItem.getCells(),
+              oAmoutCell = oCells[1];
+
+            if (isNaN(parseInt(oAmoutCell.getValue(), 10))) {
+              oAmoutCell.setValueState('Error');
+              isValidIngedients = false;
+            } else {
+              oAmoutCell.setValueState('Success');
+            }
+          });
+
+          if (!isValidIngedients) return false;
+        }
+
+        let isValidInstructions = true;
+
+        oInstructionList.getItems().forEach((oItem) => {
+          let oTextArea = oItem.getContent()[1];
+
+          if (!oTextArea.getValue()) {
+            oTextArea.setValueState('Error');
+            isValidInstructions = false;
           } else {
-            oInput.setValueState('Success');
+            oTextArea.setValueState('Success');
           }
         });
 
-        return bIsValid;
+        if (!isValidInstructions) return false;
+
+        oSubmitBtn.setEnabled(true);
       },
 
-      onNewRecipeStepSubmitBtnPress: function (oEvent) {}
+      onNewRecipeStepSubmitBtnPress: function (oEvent) {
+        if (!this.validateRecipeStepForm()) {
+          MessageBox.warning(this.localizeText('error.invalidForm.text'), {
+            title: this.localizeText('error.invalidForm.title')
+          });
+          return;
+        }
+      }
     });
   }
 );
