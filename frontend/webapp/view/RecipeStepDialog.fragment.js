@@ -23,7 +23,8 @@ sap.ui.define(
     'sap/ui/core/dnd/DropInfo',
     'sap/ui/core/dnd/DragDropInfo',
     'sap/m/List',
-    'sap/m/CustomListItem'
+    'sap/m/CustomListItem',
+    'sap/m/FlexItemData'
   ],
   function (
     Dialog,
@@ -49,13 +50,14 @@ sap.ui.define(
     DropInfo,
     DragDropInfo,
     List,
-    CustomListItem
+    CustomListItem,
+    FlexItemData
   ) {
     return {
       createContent: function (oController) {
         return new Dialog({
           showHeader: true,
-          contentWidth: '75%',
+          contentWidth: '60%',
           content: [
             new FlexBox({
               width: '100%',
@@ -82,8 +84,6 @@ sap.ui.define(
 
                 new FlexBox({
                   direction: 'Row',
-                  width: '20%',
-                  justifyContent: 'SpaceBetween',
                   items: [
                     new Input(this.createId('targetInput'), {
                       width: '100%',
@@ -113,7 +113,7 @@ sap.ui.define(
                         })
                       },
                       change: [oController.validateRecipeStepForm, oController]
-                    })
+                    }).addStyleClass('sapUiTinyMarginBegin')
                   ]
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
@@ -369,29 +369,38 @@ sap.ui.define(
                     path: '/instructions',
                     template: new CustomListItem({
                       content: [
-                        new Label({ text: '{order}:' }),
-                        new TextArea({
-                          width: '90%',
-                          value: '{instruction}',
-                          liveChange: [
-                            oController.validateRecipeStepForm,
-                            oController
+                        new FlexBox({
+                          direction: 'Row',
+                          justifyContent: 'SpaceBetween',
+                          alignItems: 'Center',
+                          width: '100%',
+                          items: [
+                            new Label({ text: '{order}:' }),
+                            new TextArea({
+                              width: '100%',
+                              layoutData: new FlexItemData({ minWidth: '90%' }),
+                              value: '{instruction}',
+                              liveChange: [
+                                oController.validateRecipeStepForm,
+                                oController
+                              ]
+                            }),
+                            new Button({
+                              icon: 'sap-icon://decline',
+                              type: 'Transparent',
+                              enabled: {
+                                path: 'order',
+                                formatter:
+                                  oController.formatRemoveInstructionEnabled
+                              },
+                              press: [
+                                oController.onRemoveInstructionBtnPress,
+                                oController
+                              ],
+                              tooltip:
+                                '{i18n>recipeStepDialog.button.removeInstruction.tooltip}'
+                            })
                           ]
-                        }).addStyleClass('sapUiMediumMarginBeginEnd'),
-                        new Button({
-                          icon: 'sap-icon://decline',
-                          type: 'Transparent',
-                          enabled: {
-                            path: 'order',
-                            formatter:
-                              oController.formatRemoveInstructionEnabled
-                          },
-                          press: [
-                            oController.onRemoveInstructionBtnPress,
-                            oController
-                          ],
-                          tooltip:
-                            '{i18n>recipeStepDialog.button.removeInstruction.tooltip}'
                         })
                       ]
                     }).addStyleClass('sapUiSmallMarginBottom')

@@ -240,6 +240,7 @@ sap.ui.define(
        *************************************************************************/
       _loadRecipeStepDialogFragment: function (callback = () => {}) {
         if (this.oRecipeStepDialog) {
+          this._resetRecipeStepFormValueState();
           this.loadIngredientListData();
           callback();
           return;
@@ -266,6 +267,7 @@ sap.ui.define(
             'selectedIngredientTable'
           );
 
+          this._resetRecipeStepFormValueState();
           this.loadIngredientListData();
           callback();
         });
@@ -526,6 +528,43 @@ sap.ui.define(
         this.validateRecipeStepForm();
       },
 
+      _resetRecipeStepFormValueState: function () {
+        const oNameInput = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'nameInput'
+          ),
+          oTargetInput = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'targetInput'
+          ),
+          oTargetUomSelect = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'targetUomSelect'
+          ),
+          oIngredentTable = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'selectedIngredientTable'
+          ),
+          oInstructionList = Fragment.byId(
+            this.oRecipeStepFragmentId,
+            'instructionList'
+          );
+
+        oNameInput.setValueState('None');
+        oTargetInput.setValueState('None');
+        oTargetUomSelect.setValueState('None');
+
+        oIngredentTable
+          .getItems()
+          .forEach((oItem) => oItem.getCells()[1].setValueState('None'));
+
+        oInstructionList
+          .getItems()
+          .forEach((oListItem) =>
+            oListItem.getContent()[0].getItems()[1].setValueState('None')
+          );
+      },
+
       validateRecipeStepForm: function () {
         const oNameInput = Fragment.byId(
             this.oRecipeStepFragmentId,
@@ -594,8 +633,8 @@ sap.ui.define(
 
         let isValidInstructions = true;
 
-        oInstructionList.getItems().forEach((oItem) => {
-          let oTextArea = oItem.getContent()[1];
+        oInstructionList.getItems().forEach((oListItem) => {
+          let oTextArea = oListItem.getContent()[0].getItems()[1];
 
           if (!oTextArea.getValue()) {
             oTextArea.setValueState('Error');
@@ -608,6 +647,8 @@ sap.ui.define(
         if (!isValidInstructions) return false;
 
         oSubmitBtn.setEnabled(true);
+
+        return true;
       },
 
       onNewRecipeStepSubmitBtnPress: function (oEvent) {
