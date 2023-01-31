@@ -28,6 +28,7 @@ sap.ui.define(
         this.oRecipeStepDialog;
         this.oAvailableIngredientTable;
         this.oSelectedIngredientTable;
+        this.oRecipeStepBindingPath = '/recipe';
 
         let oRoute =
           this.getRouter().getRoute('productDetailEdit') ||
@@ -202,6 +203,8 @@ sap.ui.define(
       },
 
       onAddRecipeStepBtnPress: function (oEvent) {
+        this.oRecipeStepBindingPath = '/recipe';
+
         this._loadRecipeStepDialogFragment(() => {
           this.oRecipeStepDialog
             .setTitle(
@@ -220,6 +223,8 @@ sap.ui.define(
         const oBindingContext = oEvent.getSource().getBindingContext(),
           oRecipeStepData = oBindingContext.getObject(),
           oNewDataInstance = JSON.parse(JSON.stringify(oRecipeStepData));
+
+        this.oRecipeStepBindingPath = oBindingContext.getPath();
 
         this._loadRecipeStepDialogFragment(() => {
           this.oRecipeStepDialog
@@ -658,6 +663,22 @@ sap.ui.define(
           });
           return;
         }
+
+        const oProductModel = this.getView().getContent()[0].getModel(),
+          oProductData = oProductModel.getProperty('/recipe');
+
+        let oRecipeStepData = this.oRecipeStepDialog
+          .getModel()
+          .getProperty('/');
+
+        if (this.oRecipeStepBindingPath === '/recipe') {
+          oProductData.push(oRecipeStepData);
+          oRecipeStepData = oProductData;
+        }
+
+        oProductModel.setProperty(this.oRecipeStepBindingPath, oRecipeStepData);
+
+        this.oRecipeStepDialog.setModel(new JSONModel()).close();
       }
     });
   }
