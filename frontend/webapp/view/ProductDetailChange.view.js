@@ -78,10 +78,12 @@ sap.ui.define(
                 title: new DynamicPageTitle({
                   heading: new Title({ text: '{/name}' }),
                   actions: [
-                    new Button({
+                    new Button('saveBtn', {
                       text: '{i18n>Save}',
                       icon: 'sap-icon://save',
-                      type: 'Accept'
+                      enabled: false,
+                      type: 'Accept',
+                      press: [oController.onSaveBtnPress, oController]
                     }),
                     new Button({
                       text: '{i18n>Cancel}',
@@ -123,17 +125,23 @@ sap.ui.define(
                             layout: 'ResponsiveGridLayout',
                             content: [
                               new Label({
-                                text: '{i18n>product.form.name}'
+                                text: '{i18n>product.form.name}',
+                                required: true
                               }),
                               new Input('nameInput', {
                                 value: {
                                   path: '/name',
                                   type: 'sap.ui.model.type.String'
-                                }
+                                },
+                                liveChange: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               }),
                               new Label({
                                 text: '{i18n>product.form.category}',
-                                labelFor: 'categoryInput'
+                                labelFor: 'categoryInput',
+                                required: true
                               }),
                               new Select('categoryInput', {
                                 forceSelection: false,
@@ -151,7 +159,11 @@ sap.ui.define(
                                         oController.formatter.localizeText
                                     }
                                   })
-                                }
+                                },
+                                change: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               }),
                               new Label({
                                 text: '{i18n>product.form.tags}',
@@ -198,7 +210,11 @@ sap.ui.define(
                                 value: {
                                   path: '/description',
                                   type: 'sap.ui.model.type.String'
-                                }
+                                },
+                                liveChange: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               })
                             ]
                           })
@@ -217,7 +233,11 @@ sap.ui.define(
                               path: '/enabled',
                               type: 'sap.ui.model.type.Boolean'
                             },
-                            type: 'AcceptReject'
+                            type: 'AcceptReject',
+                            change: [
+                              oController.validateProductForm,
+                              oController
+                            ]
                           })
                         ]
                       })
@@ -228,11 +248,11 @@ sap.ui.define(
                   new VBox({
                     width: '100%',
                     items: [
-                      new Title({
+                      new Label({
                         text: '{i18n>product.title.recipeDetails}',
-                        level: 'H3',
-                        titleStyle: 'H3'
-                      }),
+                        required: true,
+                        showColon: false
+                      }).addStyleClass('titleLbl'),
                       new VBox('recipeStepsContainer', {
                         width: '100%',
                         items: {

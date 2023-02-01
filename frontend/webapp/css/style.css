@@ -45,3 +45,13 @@
 .tallBtn .sapMBtnInner .sapMBtnContent {
   width: 100%;
 }
+
+.titleLbl {
+  font-size: 1.5rem;
+  color: #eaecee;
+  font-weight: bold;
+}
+
+.sapUiTheme-sap_horizon .titleLbl {
+  color: #1d2d3e;
+}

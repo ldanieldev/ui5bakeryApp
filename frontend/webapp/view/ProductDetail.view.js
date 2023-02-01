@@ -167,11 +167,11 @@ sap.ui.define(
                   new VBox({
                     width: '100%',
                     items: [
-                      new Title({
+                      new Label({
                         text: '{i18n>product.title.recipeDetails}',
-                        level: 'H3',
-                        titleStyle: 'H3'
-                      }),
+                        required: false,
+                        showColon: false
+                      }).addStyleClass('titleLbl'),
                       new VBox({
                         width: '100%',
                         items: {

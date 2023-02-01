@@ -43,6 +43,8 @@ sap.ui.define(
         //swap current view in product flexContainer midColumn aggration
         this.getView().getParent().to(this.getView(), 'slide');
 
+        this._resetProductFormValueState();
+
         this.sProductId = oEvent.getParameters().arguments.productId;
         this.loadProductData(this.sProductId);
       },
@@ -100,6 +102,8 @@ sap.ui.define(
           oModel.setProperty(sPath, aData);
           oInput.setValue('');
         }
+
+        this.validateProductForm();
       },
 
       onTagInputTokenUpdate: function (oEvent) {
@@ -124,6 +128,7 @@ sap.ui.define(
         }
 
         oModel.setProperty(sPath, aContexts);
+        this.validateProductForm();
         oInput.setBusy(false);
       },
 
@@ -152,6 +157,8 @@ sap.ui.define(
         if (fileList.length === 1) {
           oEvent.getSource().getModel().setProperty('/image', fileList[0]);
         }
+
+        this.validateProductForm();
       },
 
       onImageFileSizeExceeded: function (oEvent) {
@@ -197,6 +204,8 @@ sap.ui.define(
               oModel.setProperty(sPath, aData);
 
               that.oPage.setBusy(false);
+
+              that.validateProductForm();
             }
           }
         });
@@ -238,6 +247,57 @@ sap.ui.define(
             .setModel(new JSONModel(oNewDataInstance))
             .open();
         });
+      },
+
+      _resetProductFormValueState: function () {
+        const oNameInput = this.byId('nameInput'),
+          oCategoryInput = this.byId('categoryInput'),
+          oSaveBtn = this.byId('saveBtn');
+
+        oNameInput.setValueState('None');
+        oCategoryInput.setValueState('None');
+
+        oSaveBtn.setEnabled(false);
+      },
+
+      validateProductForm: function () {
+        const oNameInput = this.byId('nameInput'),
+          oCategoryInput = this.byId('categoryInput'),
+          oRecipeStepsContainer = this.byId('recipeStepsContainer'),
+          oSaveBtn = this.byId('saveBtn');
+
+        oSaveBtn.setEnabled(false);
+
+        if (!oNameInput.getValue()) {
+          oNameInput.setValueState('Error');
+          return false;
+        } else {
+          oNameInput.setValueState('Success');
+        }
+
+        if (!oCategoryInput.getSelectedKey()) {
+          oCategoryInput.setValueState('Error');
+          return false;
+        } else {
+          oCategoryInput.setValueState('Success');
+        }
+
+        if (oRecipeStepsContainer.getItems().length < 1) {
+          return false;
+        }
+
+        oSaveBtn.setEnabled(true);
+
+        return true;
+      },
+
+      onSaveBtnPress: function (oEvent) {
+        if (!validateProductForm()) {
+          MessageBox.warning(this.localizeText('error.invalidForm.text'), {
+            title: this.localizeText('error.invalidForm.title')
+          });
+          return;
+        }
       },
 
       /*************************************************************************
@@ -380,6 +440,8 @@ sap.ui.define(
         oModel.setProperty(sPath, aData);
 
         oInstructionList.setBusy(false);
+
+        this.validateRecipeStepForm();
       },
 
       moveToSelectedIngredientsTable: function (oEvent) {
@@ -553,7 +615,8 @@ sap.ui.define(
           oInstructionList = Fragment.byId(
             this.oRecipeStepFragmentId,
             'instructionList'
-          );
+          ),
+          oSubmitBtn = Fragment.byId(this.oRecipeStepFragmentId, 'submitBtn');
 
         oNameInput.setValueState('None');
         oTargetInput.setValueState('None');
@@ -568,6 +631,8 @@ sap.ui.define(
           .forEach((oListItem) =>
             oListItem.getContent()[0].getItems()[1].setValueState('None')
           );
+
+        oSubmitBtn.setEnabled(false);
       },
 
       validateRecipeStepForm: function () {
@@ -679,6 +744,7 @@ sap.ui.define(
         oProductModel.setProperty(this.oRecipeStepBindingPath, oRecipeStepData);
 
         this.oRecipeStepDialog.setModel(new JSONModel()).close();
+        this.validateProductForm();
       }
     });
   }
