@@ -14,7 +14,7 @@ const setDecimal = (value) => {
   }
 };
 
-const IngredientSchema = new Schema(
+const ingredientSchema = new Schema(
   {
     name: {
       type: String,
@@ -54,7 +54,8 @@ const IngredientSchema = new Schema(
   { toJSON: { getters: true } }
 );
 
-IngredientSchema.index({ name: 1, type: -1 });
-IngredientSchema.index({ stockCount: 1, type: -1 });
+ingredientSchema.index({ name: 1, type: -1 });
+ingredientSchema.index({ stockCount: 1, type: -1 });
 
-export default mongoose.model('Ingredient', IngredientSchema);
+export const Ingredient = mongoose.model('Ingredient', ingredientSchema);
+export const IngredientSchema = ingredientSchema;
