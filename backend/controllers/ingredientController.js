@@ -1,5 +1,5 @@
 import expressAsyncHandler from 'express-async-handler';
-import Ingredient from '../models/ingredientModel.js';
+import { Ingredient } from '../models/ingredientModel.js';
 
 /**
  * Get Ingredients
