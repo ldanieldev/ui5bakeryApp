@@ -51,10 +51,12 @@ const getProductById = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const setProduct = expressAsyncHandler(async (req, res) => {
-  const { name, category, recipes } = req.body;
+  const { name, category, recipe } = req.body;
   const image = req.file;
 
-  req.body.image = image.url;
+  if (image) {
+    req.body.image = image.url;
+  }
 
   if (!name) {
     res.status(400);
@@ -65,56 +67,47 @@ const setProduct = expressAsyncHandler(async (req, res) => {
     errorHandler('Please add a category parameter', image);
   }
 
-  if (!recipes || recipes === null || typeof recipes !== 'object') {
+  if (!recipe || recipe === null || typeof recipe !== 'object') {
     res.status(400);
     errorHandler('Please add a recipe parameter', image);
   }
 
-  if (
-    !recipes.operations ||
-    recipes.operations === null ||
-    typeof recipes.operations !== 'object' ||
-    recipes.operations.length === 0
-  ) {
+  if (recipe.length < 1) {
     res.status(400);
     errorHandler('Please add an operations array of objects parameter', image);
   }
 
-  const opStepsExists = recipes.operations.every(
-    (operation) => operation.step && !isNaN(operation.step)
+  const stepOrdersExists = recipe.every(
+    (step) => step.order && !isNaN(step.order)
   );
 
-  if (!opStepsExists) {
+  if (!stepOrdersExists) {
     res.status(400);
-    errorHandler('Please add a step parameter for each operation', image);
+    errorHandler('Please add an order number for each recipe step', image);
   }
 
-  const opDescriptionsExists = recipes.operations.every(
-    (operation) => operation.description
-  );
+  const stepDescriptionsExists = recipe.every((step) => step.description);
 
-  if (!opDescriptionsExists) {
+  if (!stepDescriptionsExists) {
     res.status(400);
     errorHandler(
-      'Please add a description parameter for each operation',
+      'Please add a description parameter for each recipe step',
       image
     );
   }
 
-  const opTargetExists = recipes.operations.every(
-    (operation) => operation.target && !isNaN(operation.target)
+  const stepTargetExists = recipe.every(
+    (step) => step.target && !isNaN(step.target)
   );
 
-  if (!opTargetExists) {
+  if (!stepTargetExists) {
     res.status(400);
     errorHandler('Please add a target parameter for each operation', image);
   }
 
-  const opTargetUomExists = recipes.operations.every(
-    (operation) => operation.targetUom
-  );
+  const stepTargetUomExists = recipe.every((step) => step.targetUom);
 
-  if (!opTargetUomExists) {
+  if (!stepTargetUomExists) {
     res.status(400);
     errorHandler(
       'Please add a target unit of measure parameter for each operation',
