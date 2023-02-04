@@ -141,10 +141,6 @@ sap.ui.define(
         }
       },
 
-      onSaveBtnPress: function (oEvent) {
-        this._returnToDisplayPage();
-      },
-
       _setProductPageLayout: function (sLayout) {
         this.getView().getParent().getParent().setLayout(sLayout);
       },
