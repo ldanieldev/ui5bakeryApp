@@ -1,7 +1,6 @@
 import expressAsyncHandler from 'express-async-handler';
 import cloudinary from '../config/cloudinary.js';
 import Product from '../models/productModel.js';
-import mongoose from 'mongoose';
 
 const deleteImage = (publicId) =>
   cloudinary.uploader.destroy(publicId, function (error, result) {
@@ -136,15 +135,17 @@ const setProduct = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const updateProduct = expressAsyncHandler(async (req, res) => {
-  const updatedProducts = await Product.findOneAndUpdate(
-    { _id: req.params.id },
-    req.body,
-    {
-      new: true,
-      runValidators: true
-    }
-  );
-  res.status(200).json(updatedProducts);
+  const id = req.params.id;
+  if (!id) {
+    res.status(400);
+    throw new Error('Please provide a product ID number');
+  }
+
+  const updatedProduct = await Product.findOneAndUpdate({ _id: id }, req.body, {
+    new: true,
+    runValidators: true
+  });
+  res.status(200).json(updatedProduct);
 });
 
 /**
