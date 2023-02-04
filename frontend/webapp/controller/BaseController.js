@@ -112,36 +112,51 @@ sap.ui.define(
        * @param {JSON} oArgs
        */
       getData: function (oModel, oArgs) {
-        const oParams = {
+        const oRequestOptions = {
           url: '',
-          params: {},
-          async: true,
+          body: undefined,
           type: 'GET',
           then: () => {},
-          catch: (oErr) => {
-            if (oErr.statusCode === 0) {
-              MessageBox.error(this.localizeText('error.connection.message'), {
-                title: this.localizeText('error.connection.title')
-              });
-            } else if (oErr.responseText.search('duplicate key error') >= 0) {
-              MessageBox.error(this.localizeText('error.duplicate.message'), {
-                title: this.localizeText('error.duplicate.title')
-              });
-            } else if (oErr.statusCode) {
-              MessageBox.error(oErr.statusText, { title: oErr.message });
-            } else {
-              this._showDefaultErrorMessage();
-            }
-          },
           finally: () => {},
           ...oArgs
         };
 
-        oModel
-          .loadData(oParams.url, oParams.params, oParams.async, oParams.type)
-          .catch(oParams.catch)
-          .then(oParams.then)
-          .finally(oParams.finally);
+        fetch(oRequestOptions.url, {
+          method: oRequestOptions.type,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: oRequestOptions.body
+            ? JSON.stringify(oRequestOptions.body)
+            : oRequestOptions.body
+        })
+          .then((response) => {
+            if (response.statusCode === 0) {
+              MessageBox.error(this.localizeText('error.connection.message'), {
+                title: this.localizeText('error.connection.title')
+              });
+            } else if (response.statusCode) {
+              MessageBox.error(data.statusText, { title: data.message });
+            } else {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            if (!data.message) {
+              oModel.setData(data);
+            } else if (data.message.search('duplicate key error') >= 0) {
+              MessageBox.error(this.localizeText('error.duplicate.message'), {
+                title: this.localizeText('error.duplicate.title')
+              });
+            } else {
+              this._showDefaultErrorMessage();
+            }
+          })
+          .then(oRequestOptions.then)
+          .finally(oRequestOptions.finally)
+          .catch((oErr) => {
+            MessageBox.error(oErr.message);
+          });
       },
 
       /**

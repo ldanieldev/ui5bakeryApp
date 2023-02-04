@@ -193,16 +193,11 @@ sap.ui.define(
 
           oComponent.setBusy(true);
 
+          oData.name = this.formatter.toTitleCase(oData.name);
+
           this.getData(oModel, {
             url: sUrl,
-            params: {
-              name: oData.name,
-              stockCount: oData.stockCount,
-              reorderThreshold: oData.reorderThreshold,
-              uom: oData.uom,
-              uomAbbreviation: oData.uomAbbreviation,
-              price: oData.price
-            },
+            body: oData,
             type: sType,
             then: () => {
               if (oModel.getProperty('/id')) {
