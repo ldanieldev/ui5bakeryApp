@@ -292,12 +292,44 @@ sap.ui.define(
       },
 
       onSaveBtnPress: function (oEvent) {
-        if (!validateProductForm()) {
+        if (!this.validateProductForm()) {
           MessageBox.warning(this.localizeText('error.invalidForm.text'), {
             title: this.localizeText('error.invalidForm.title')
           });
           return;
         }
+
+        const that = this,
+          oModel = new JSONModel(),
+          oData = oEvent.getSource().getModel().getProperty('/'),
+          bIsEdit = window.location.href.includes('edit'),
+          sType = bIsEdit ? 'PUT' : 'POST',
+          oPage = this.byId('productDetailPage'),
+          sUrl = `${this.sProductUrl}${bIsEdit ? oData.id : ''}`;
+
+        oPage.setBusy(true);
+
+        this.getData(oModel, {
+          url: sUrl,
+          body: oData,
+          type: sType,
+          then: () => {
+            if (oModel.getProperty('/id')) {
+              MessageToast.show(
+                that.localizeText(
+                  'dynamic.toast.' + (bIsEdit ? 'update' : 'insert'),
+                  oData.name
+                ),
+                { at: 'center center' }
+              );
+
+              this.getRouter().navTo('productDetailView', {
+                productId: oData.id
+              });
+            }
+          },
+          finally: () => oPage.setBusy(false)
+        });
       },
 
       /*************************************************************************
@@ -737,6 +769,7 @@ sap.ui.define(
           .getProperty('/');
 
         if (this.oRecipeStepBindingPath === '/recipe') {
+          oRecipeStepData.order = oProductData.length + 1;
           oProductData.push(oRecipeStepData);
           oRecipeStepData = oProductData;
         }
