@@ -2,6 +2,14 @@ specVersion: '2.6'
 metadata:
   name: bakeryApp
 type: application
+resources:
+  configuration:
+    paths:
+      webapp: webapp/
+builder:
+  componentPreload:
+    paths:
+        - "Component.js"
 framework:
   name: OpenUI5
   version: "1.110.0"
@@ -11,4 +19,3 @@ framework:
     - name: sap.ui.core
     - name: sap.ui.layout
     - name: themelib_sap_horizon
-    - name: themelib_sap_horizon_dark
