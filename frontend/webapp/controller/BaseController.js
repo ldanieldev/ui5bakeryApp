@@ -22,6 +22,18 @@ sap.ui.define(
       },
 
       /**
+       * return the route object for the current hash
+       * @public
+       * @param {sap.ui.core.routing.Router} router the router for this component
+       * @returns {sap.ui.core.routing.Route} the  route based on the current hash
+       */
+      getCurrentRoute: function (router = this.getRouter()) {
+        const currentHash = router.getHashChanger().getHash();
+        const { name } = router.getRouteInfoByHash(currentHash);
+        return router.getRoute(name);
+      },
+
+      /**
        * Event handler for navigating back.
        * It there is a history entry we go one step back in the browser history
        * If not, it will replace the current entry of the browser history with the master route.
@@ -31,7 +43,6 @@ sap.ui.define(
         var sPreviousHash = History.getInstance().getPreviousHash();
 
         if (sPreviousHash !== undefined) {
-          // eslint-disable-next-line sap-no-history-manipulation
           history.go(-1);
         } else {
           this.getRouter().navTo('home', {}, true);
