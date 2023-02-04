@@ -30,13 +30,7 @@ sap.ui.define(
         this.oSelectedIngredientTable;
         this.oRecipeStepBindingPath = '/recipe';
 
-        let oRoute =
-          this.getRouter().getRoute('productDetailEdit') ||
-          this.getRouter().getRoute('productDetailNew');
-
-        if (oRoute) {
-          oRoute.attachPatternMatched(this.onBeforeShow, this);
-        }
+        this.getCurrentRoute().attachPatternMatched(this.onBeforeShow, this);
       },
 
       onBeforeShow: function (oEvent) {
@@ -46,7 +40,12 @@ sap.ui.define(
         this._resetProductFormValueState();
 
         this.sProductId = oEvent.getParameters().arguments.productId;
-        this.loadProductData(this.sProductId);
+
+        if (!this.sProductId) {
+          this.oPage.setModel(new JSONModel('./model/Product.json'));
+        } else {
+          this.loadProductData(this.sProductId);
+        }
       },
 
       loadProductData: function (sProductId) {
@@ -72,6 +71,7 @@ sap.ui.define(
                 )
               );
               oComponent.setModel(new JSONModel());
+              this.getRouter().navTo('products');
             }
           },
           finally: () => oComponent.setBusy(false)
@@ -133,18 +133,24 @@ sap.ui.define(
       },
 
       onEditCancelBtnPress: function (oEvent) {
-        this._returnToDisplayPage();
+        if (this.sProductId) {
+          this._returnToDisplayPage();
+        } else {
+          this._setProductPageLayout('OneColumn');
+          this.getRouter().navTo('products');
+        }
       },
 
       onSaveBtnPress: function (oEvent) {
         this._returnToDisplayPage();
       },
 
+      _setProductPageLayout: function (sLayout) {
+        this.getView().getParent().getParent().setLayout(sLayout);
+      },
+
       _returnToDisplayPage: function () {
-        this.getView()
-          .getParent()
-          .getParent()
-          .setLayout('TwoColumnsMidExpanded');
+        this._setProductPageLayout('TwoColumnsMidExpanded');
 
         this.getRouter().navTo('productDetailView', {
           productId: this.sProductId
@@ -761,7 +767,7 @@ sap.ui.define(
           return;
         }
 
-        const oProductModel = this.getView().getContent()[0].getModel(),
+        const oProductModel = this.oPage.getModel(),
           oProductData = oProductModel.getProperty('/recipe');
 
         let oRecipeStepData = this.oRecipeStepDialog

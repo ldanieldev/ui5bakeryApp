@@ -12,9 +12,7 @@ sap.ui.define(
       onInit: function () {
         this.sProductUrl = this.getDataSources().products.uri;
 
-        this.getRouter()
-          .getRoute('productDetailView')
-          .attachPatternMatched(this.onBeforeShow, this);
+        this.getCurrentRoute().attachPatternMatched(this.onBeforeShow, this);
       },
 
       onBeforeShow: function (oEvent) {
@@ -26,7 +24,8 @@ sap.ui.define(
       },
 
       loadProductData: function () {
-        const oModel = new JSONModel(),
+        const that = this,
+          oModel = new JSONModel(),
           oComponent = this.byId('productDetailPage'),
           oController = this;
 
@@ -48,6 +47,7 @@ sap.ui.define(
                 )
               );
               oComponent.setModel(new JSONModel());
+              that.getRouter().navTo('products');
             }
           },
           finally: () => oComponent.setBusy(false)
@@ -70,11 +70,12 @@ sap.ui.define(
         return bEnabled ? 'sap-icon://accept' : 'sap-icon://cancel';
       },
 
+      _setProductPageLayout: function (sLayout) {
+        this.getView().getParent().getParent().setLayout(sLayout);
+      },
+
       onEditProductPress: function (oEvent) {
-        this.getView()
-          .getParent()
-          .getParent()
-          .setLayout('TwoColumnsMidExpanded');
+        this._setProductPageLayout('TwoColumnsMidExpanded');
 
         this.getRouter().navTo('productDetailEdit', {
           productId: this.sProductId
@@ -116,10 +117,7 @@ sap.ui.define(
                   finally: () => {
                     oPage.setBusy(false);
 
-                    this.getView()
-                      .getParent()
-                      .getParent()
-                      .setLayout('OneColumn');
+                    this._setProductPageLayout('OneColumn');
 
                     that.getRouter().navTo('products');
                   }

@@ -110,7 +110,7 @@
         {
           "pattern": "orders",
           "name": "orders",
-          "target": ["orderList", "orderDetail"]
+          "target": ["orderList"]
         },
         {
           "pattern": "orders/{orderId}",
@@ -128,20 +128,19 @@
           "target": ["productList"]
         },
         {
-          "pattern": "products/{productId}",
+          "pattern": "products/view/{productId}",
           "name": "productDetailView",
           "target": ["productList", "productDetail"]
         },
         {
-          "pattern": "products/{productId}/edit",
-          "name": "productDetailEdit",
-          "target": ["productList", "productDetailChange"]
+          "pattern": "products/add/",
+          "name": "productDetailAdd",
+          "target": ["productList", "productDetailAdd"]
         },
         {
-          "pattern": "products/new",
-          "name": "productDetailNew",
-          "target": ["productList", "productDetailChange"],
-          "transition": "flip"
+          "pattern": "products/edit/{productId}",
+          "name": "productDetailEdit",
+          "target": ["productList", "productDetailChange"]
         }
       ],
       "targets": {
@@ -208,7 +207,15 @@
           "viewName": "module:bakeryApp/view/ProductDetailChange.view",
           "controlId": "productFlexLayout",
           "controlAggregation": "midColumnPages",
-          "viewLevel": 4
+          "viewLevel": 3
+        },
+        "productDetailAdd": {
+          "parent": "productsContainer",
+          "viewId": "productDetailAdd",
+          "viewName": "module:bakeryApp/view/ProductDetailChange.view",
+          "controlId": "productFlexLayout",
+          "controlAggregation": "midColumnPages",
+          "viewLevel": 3
         }
       }
     }

@@ -2,24 +2,26 @@ sap.ui.define(
   [
     './BaseController',
     'sap/ui/model/json/JSONModel',
-    'sap/m/MessageBox',
     'sap/ui/model/Filter',
     'sap/ui/model/FilterOperator'
   ],
-  function (BaseController, JSONModel, MessageBox, Filter, FilterOperator) {
+  function (BaseController, JSONModel, Filter, FilterOperator) {
     'use strict';
 
     return BaseController.extend('bakeryApp.controller.ProductList', {
       onInit: function () {
         this.sProductUrl = this.getDataSources().products.uri;
 
-        this.getView().addEventDelegate(
-          { onBeforeShow: this.onBeforeShow },
-          this
-        );
+        this.getCurrentRoute().attachPatternMatched(this.onBeforeShow, this);
       },
 
-      onBeforeShow: function () {
+      onBeforeShow: function (oEvent) {
+        const sViewId = oEvent.getParameters().name;
+
+        if (sViewId === 'products') {
+          this._setProductPageLayout('OneColumn');
+        }
+
         this.oProductList = this.byId('productList');
         this.loadProductListData();
       },
@@ -62,20 +64,33 @@ sap.ui.define(
         );
       },
 
+      _setProductPageLayout: function (sLayout) {
+        this.getView().getParent().getParent().setLayout(sLayout);
+      },
+
+      _showDetailView(sProductId) {
+        this._setProductPageLayout('TwoColumnsMidExpanded');
+
+        if (sProductId) {
+          this.getRouter().navTo('productDetailView', {
+            productId: sProductId
+          });
+        } else {
+          this.getRouter().navTo('productDetailAdd', {}, true);
+        }
+      },
+
       onProductListItemPress: function (oEvent) {
         const sProductId = oEvent
           .getSource()
           .getBindingContext()
           .getProperty('id');
 
-        this.getView()
-          .getParent()
-          .getParent()
-          .setLayout('TwoColumnsMidExpanded');
+        this._showDetailView(sProductId);
+      },
 
-        this.getRouter().navTo('productDetailView', {
-          productId: sProductId
-        });
+      onAddBtnPress: function (oEvent) {
+        this._showDetailView();
       },
 
       formatInfoText: function (bEnabled, sEnabledMsg, sDisabledMsg) {

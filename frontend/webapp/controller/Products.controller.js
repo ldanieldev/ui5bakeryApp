@@ -3,14 +3,14 @@ sap.ui.define(['./BaseController'], function (BaseController) {
 
   return BaseController.extend('bakeryApp.controller.Products', {
     onInit: function () {
-      this.getView().addEventDelegate(
-        { onBeforeShow: this.onBeforeShow },
-        this
-      );
+      this.getCurrentRoute().attachPatternMatched(this.onBeforeShow, this);
     },
+
     onBeforeShow: function (oEvent) {
+      const sViewId = oEvent.getParameters().name;
+
       this.byId('productFlexLayout').setLayout(
-        oEvent.data.productId ? 'TwoColumnsMidExpanded' : 'OneColumn'
+        sViewId === 'products' ? 'OneColumn' : 'TwoColumnsMidExpanded'
       );
     }
   });
