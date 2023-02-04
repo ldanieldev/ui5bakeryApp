@@ -141,6 +141,15 @@ sap.ui.define(
         }
       },
 
+      _refreshProductList: function () {
+        this.getView()
+          .getParent()
+          .getParent()
+          .getBeginColumnPages()[0]
+          .getController()
+          .loadProductListData();
+      },
+
       _setProductPageLayout: function (sLayout) {
         this.getView().getParent().getParent().setLayout(sLayout);
       },
@@ -316,18 +325,24 @@ sap.ui.define(
           body: oData,
           type: sType,
           then: () => {
-            if (oModel.getProperty('/id')) {
+            let sId = oModel.getProperty('/id');
+
+            if (sId) {
               MessageToast.show(
                 that.localizeText(
                   'dynamic.toast.' + (bIsEdit ? 'update' : 'insert'),
-                  oData.name
+                  oModel.getProperty('/name')
                 ),
                 { at: 'center center' }
               );
 
+              this._refreshProductList();
+
               this.getRouter().navTo('productDetailView', {
-                productId: oData.id
+                productId: sId
               });
+            } else {
+              this._showDefaultErrorMessage();
             }
           },
           finally: () => oPage.setBusy(false)

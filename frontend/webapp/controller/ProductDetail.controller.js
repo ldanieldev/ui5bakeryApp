@@ -70,6 +70,15 @@ sap.ui.define(
         return bEnabled ? 'sap-icon://accept' : 'sap-icon://cancel';
       },
 
+      _refreshProductList: function () {
+        this.getView()
+          .getParent()
+          .getParent()
+          .getBeginColumnPages()[0]
+          .getController()
+          .loadProductListData();
+      },
+
       _setProductPageLayout: function (sLayout) {
         this.getView().getParent().getParent().setLayout(sLayout);
       },
@@ -83,8 +92,7 @@ sap.ui.define(
       },
 
       onDeleteProductPress: function (oEvent) {
-        const that = this,
-          oModel = new JSONModel(),
+        const oModel = new JSONModel(),
           oPage = this.byId('productDetailPage'),
           sProductName = oPage.getModel().getProperty('/name');
 
@@ -107,19 +115,19 @@ sap.ui.define(
                   then: () => {
                     if (oModel.getProperty('/id')) {
                       MessageToast.show(
-                        that.localizeText('dynamic.toast.delete', sProductName),
+                        this.localizeText('dynamic.toast.delete', sProductName),
                         { at: 'center center' }
                       );
                     } else {
-                      that._showDefaultErrorMessage();
+                      this._showDefaultErrorMessage();
                     }
                   },
                   finally: () => {
                     oPage.setBusy(false);
 
+                    this._refreshProductList();
                     this._setProductPageLayout('OneColumn');
-
-                    that.getRouter().navTo('products');
+                    this.getRouter().navTo('products');
                   }
                 });
               }
