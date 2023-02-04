@@ -153,7 +153,7 @@ sap.ui.define(
             }
           })
           .then((data) => {
-            if (!data.message) {
+            if (!data || !data.message) {
               oModel.setData(data);
             } else if (data.message.search('duplicate key error') >= 0) {
               MessageBox.error(this.localizeText('error.duplicate.message'), {
