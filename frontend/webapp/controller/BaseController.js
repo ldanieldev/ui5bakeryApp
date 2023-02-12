@@ -127,6 +127,9 @@ sap.ui.define(
           url: '',
           body: undefined,
           type: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          },
           then: () => {},
           finally: () => {},
           ...oArgs
@@ -134,12 +137,12 @@ sap.ui.define(
 
         fetch(oRequestOptions.url, {
           method: oRequestOptions.type,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: oRequestOptions.body
-            ? JSON.stringify(oRequestOptions.body)
-            : oRequestOptions.body
+          headers: oRequestOptions.headers,
+          body:
+            oRequestOptions.body &&
+            oRequestOptions.headers['Content-Type'] === 'application/json'
+              ? JSON.stringify(oRequestOptions.body)
+              : oRequestOptions.body
         })
           .then((response) => {
             if (response.statusCode === 0) {
