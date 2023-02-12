@@ -3,8 +3,7 @@
   "name": null,
   "description": null,
   "category": null,
-  "image": null,
-  "imagePath": null,
+  "image": "",
   "recipe": [],
   "tags": []
 }
