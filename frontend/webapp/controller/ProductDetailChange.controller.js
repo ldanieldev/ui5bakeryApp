@@ -166,7 +166,13 @@ sap.ui.define(
         const fileList = oEvent.getParameter('files');
 
         if (fileList.length === 1) {
-          oEvent.getSource().getModel().setProperty('/image', fileList[0]);
+          let imageFile = fileList[0],
+            tempUrl = URL.createObjectURL(imageFile);
+
+          oEvent.getSource().getModel().setProperty('/imageTemp', tempUrl);
+          this.byId('imageComponent').bindProperty('src', '/imageTemp');
+
+          oEvent.getSource().getModel().setProperty('/image', imageFile);
         }
 
         this.validateProductForm();
@@ -347,6 +353,13 @@ sap.ui.define(
           },
           finally: () => oPage.setBusy(false)
         });
+      },
+
+      formatImageVisible: function (oImage) {
+        return oImage !== '';
+      },
+      formatIconVisible: function (oImage) {
+        return oImage === '';
       },
 
       /*************************************************************************

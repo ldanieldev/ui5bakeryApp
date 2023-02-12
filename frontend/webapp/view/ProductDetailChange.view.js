@@ -27,7 +27,8 @@ sap.ui.define(
     'sap/m/Toolbar',
     'sap/m/ToolbarSpacer',
     'sap/ui/layout/form/ColumnLayout',
-    'sap/ui/unified/FileUploader'
+    'sap/ui/unified/FileUploader',
+    'sap/ui/core/Icon'
   ],
   function (
     View,
@@ -57,7 +58,8 @@ sap.ui.define(
     Toolbar,
     ToolbarSpacer,
     ColumnLayout,
-    FileUploader
+    FileUploader,
+    Icon
   ) {
     'use strict';
     return View.extend('bakeryApp.view.ProductDetailChange', {
@@ -101,14 +103,31 @@ sap.ui.define(
                       new VBox({
                         width: '10%',
                         items: [
-                          new Image({ src: '{/image}', height: '8rem' }),
+                          new Image('imageComponent', {
+                            visible: {
+                              path: '/image',
+                              formatter: oController.formatImageVisible
+                            },
+                            src: '{/image}',
+                            height: '8rem'
+                          }),
+                          new Icon('imageIcon', {
+                            visible: {
+                              path: '/image',
+                              formatter: oController.formatIconVisible
+                            },
+                            src: 'sap-icon://add-photo',
+                            size: '5rem'
+                          }).addStyleClass(
+                            'sapUiSmallMarginBottom sapUiTinyMarginBegin'
+                          ),
                           new FileUploader('imageInput', {
                             buttonOnly: true,
                             maximumFileSize: 0.5,
                             icon: 'sap-icon://add-photo',
                             fileType: 'jpg,png',
                             style: 'Emphasized',
-                            value: '{/imagePath}',
+                            value: '{/image}',
                             fileSizeExceed: [
                               oController.onImageFileSizeExceeded,
                               oController
