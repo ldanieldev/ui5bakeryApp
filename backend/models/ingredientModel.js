@@ -4,7 +4,7 @@ import utils from '../utils.js';
 const { Schema } = mongoose;
 const { getDecimal, setDecimal } = utils;
 
-const ingredientSchema = new Schema(
+const IngredientSchema = new Schema(
   {
     name: {
       type: String,
@@ -44,8 +44,4 @@ const ingredientSchema = new Schema(
   { toJSON: { getters: true } }
 );
 
-ingredientSchema.index({ name: 1, type: -1 });
-ingredientSchema.index({ stockCount: 1, type: -1 });
-
-export const Ingredient = mongoose.model('Ingredient', ingredientSchema);
-export const IngredientSchema = ingredientSchema;
+export default mongoose.model('Ingredient', IngredientSchema);
