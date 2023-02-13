@@ -51,12 +51,10 @@ const getProductById = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const setProduct = expressAsyncHandler(async (req, res) => {
-  const { name, category, recipe } = req.body;
-  const image = req.file;
+  const data = JSON.parse(req.body.product);
+  const { name, category, recipe } = data;
 
-  if (image) {
-    req.body.image = image.url;
-  }
+  data.image = typeof req.file !== 'undefined' ? req.file.path : '';
 
   if (!name) {
     res.status(400);
@@ -64,17 +62,20 @@ const setProduct = expressAsyncHandler(async (req, res) => {
   }
   if (!category) {
     res.status(400);
-    errorHandler('Please add a category parameter', image);
+    errorHandler('Please add a category parameter', data.image);
   }
 
   if (!recipe || recipe === null || typeof recipe !== 'object') {
     res.status(400);
-    errorHandler('Please add a recipe parameter', image);
+    errorHandler('Please add a recipe parameter', data.image);
   }
 
   if (recipe.length < 1) {
     res.status(400);
-    errorHandler('Please add an operations array of objects parameter', image);
+    errorHandler(
+      'Please add an operations array of objects parameter',
+      data.image
+    );
   }
 
   const stepOrdersExists = recipe.every(
@@ -83,7 +84,7 @@ const setProduct = expressAsyncHandler(async (req, res) => {
 
   if (!stepOrdersExists) {
     res.status(400);
-    errorHandler('Please add an order number for each recipe step', image);
+    errorHandler('Please add an order number for each recipe step', data.image);
   }
 
   const stepDescriptionsExists = recipe.every((step) => step.description);
@@ -92,7 +93,7 @@ const setProduct = expressAsyncHandler(async (req, res) => {
     res.status(400);
     errorHandler(
       'Please add a description parameter for each recipe step',
-      image
+      data.image
     );
   }
 
@@ -102,7 +103,10 @@ const setProduct = expressAsyncHandler(async (req, res) => {
 
   if (!stepTargetExists) {
     res.status(400);
-    errorHandler('Please add a target parameter for each operation', image);
+    errorHandler(
+      'Please add a target parameter for each operation',
+      data.image
+    );
   }
 
   const stepTargetUomExists = recipe.every((step) => step.targetUom);
@@ -111,11 +115,11 @@ const setProduct = expressAsyncHandler(async (req, res) => {
     res.status(400);
     errorHandler(
       'Please add a target unit of measure parameter for each operation',
-      image
+      data.image
     );
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create(data);
   res.status(200).json(product);
 });
 
@@ -128,16 +132,25 @@ const setProduct = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const updateProduct = expressAsyncHandler(async (req, res) => {
-  const id = req.params.id;
-  if (!id) {
+  const data = JSON.parse(req.body.product);
+
+  if (!data.id) {
     res.status(400);
     throw new Error('Please provide a product ID number');
   }
 
-  const updatedProduct = await Product.findOneAndUpdate({ _id: id }, req.body, {
-    new: true,
-    runValidators: true
-  });
+  if (typeof req.file !== 'undefined') {
+    data.image = req.file.path;
+  }
+
+  const updatedProduct = await Product.findOneAndUpdate(
+    { _id: data.id },
+    data,
+    {
+      new: true,
+      runValidators: true
+    }
+  );
   res.status(200).json(updatedProduct);
 });
 
