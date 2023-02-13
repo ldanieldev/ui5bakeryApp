@@ -97,28 +97,6 @@ const setProduct = expressAsyncHandler(async (req, res) => {
     );
   }
 
-  const stepTargetExists = recipe.every(
-    (step) => step.target && !isNaN(step.target)
-  );
-
-  if (!stepTargetExists) {
-    res.status(400);
-    errorHandler(
-      'Please add a target parameter for each operation',
-      data.image
-    );
-  }
-
-  const stepTargetUomExists = recipe.every((step) => step.targetUom);
-
-  if (!stepTargetUomExists) {
-    res.status(400);
-    errorHandler(
-      'Please add a target unit of measure parameter for each operation',
-      data.image
-    );
-  }
-
   const product = await Product.create(data);
   res.status(200).json(product);
 });
@@ -133,10 +111,52 @@ const setProduct = expressAsyncHandler(async (req, res) => {
  */
 const updateProduct = expressAsyncHandler(async (req, res) => {
   const data = JSON.parse(req.body.product);
+  const { name, category, recipe } = data;
 
   if (!data.id) {
     res.status(400);
     throw new Error('Please provide a product ID number');
+  }
+
+  if (!name) {
+    res.status(400);
+    throw new Error('Please add a name parameter');
+  }
+  if (!category) {
+    res.status(400);
+    errorHandler('Please add a category parameter', data.image);
+  }
+
+  if (!recipe || recipe === null || typeof recipe !== 'object') {
+    res.status(400);
+    errorHandler('Please add a recipe parameter', data.image);
+  }
+
+  if (recipe.length < 1) {
+    res.status(400);
+    errorHandler(
+      'Please add an operations array of objects parameter',
+      data.image
+    );
+  }
+
+  const stepOrdersExists = recipe.every(
+    (step) => step.order && !isNaN(step.order)
+  );
+
+  if (!stepOrdersExists) {
+    res.status(400);
+    errorHandler('Please add an order number for each recipe step', data.image);
+  }
+
+  const stepDescriptionsExists = recipe.every((step) => step.description);
+
+  if (!stepDescriptionsExists) {
+    res.status(400);
+    errorHandler(
+      'Please add a description parameter for each recipe step',
+      data.image
+    );
   }
 
   if (typeof req.file !== 'undefined') {
