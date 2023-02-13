@@ -1,8 +1,6 @@
 {
   "order": null,
   "description": null,
-  "target": null,
-  "targetUom": null,
   "instructions": [{ "order": 1, "instruction": null }],
   "ingredients": []
 }

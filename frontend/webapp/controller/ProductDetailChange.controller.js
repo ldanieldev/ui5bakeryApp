@@ -669,14 +669,6 @@ sap.ui.define(
             this.oRecipeStepFragmentId,
             'nameInput'
           ),
-          oTargetInput = Fragment.byId(
-            this.oRecipeStepFragmentId,
-            'targetInput'
-          ),
-          oTargetUomSelect = Fragment.byId(
-            this.oRecipeStepFragmentId,
-            'targetUomSelect'
-          ),
           oIngredentTable = Fragment.byId(
             this.oRecipeStepFragmentId,
             'selectedIngredientTable'
@@ -688,8 +680,6 @@ sap.ui.define(
           oSubmitBtn = Fragment.byId(this.oRecipeStepFragmentId, 'submitBtn');
 
         oNameInput.setValueState('None');
-        oTargetInput.setValueState('None');
-        oTargetUomSelect.setValueState('None');
 
         oIngredentTable
           .getItems()
@@ -709,14 +699,6 @@ sap.ui.define(
             this.oRecipeStepFragmentId,
             'nameInput'
           ),
-          oTargetInput = Fragment.byId(
-            this.oRecipeStepFragmentId,
-            'targetInput'
-          ),
-          oTargetUomSelect = Fragment.byId(
-            this.oRecipeStepFragmentId,
-            'targetUomSelect'
-          ),
           oIngredentTable = Fragment.byId(
             this.oRecipeStepFragmentId,
             'selectedIngredientTable'
@@ -734,20 +716,6 @@ sap.ui.define(
           return false;
         } else {
           oNameInput.setValueState('Success');
-        }
-
-        if (!oTargetInput.getValue()) {
-          oTargetInput.setValueState('Error');
-          return false;
-        } else {
-          oTargetInput.setValueState('Success');
-        }
-
-        if (!oTargetUomSelect.getSelectedKey()) {
-          oTargetUomSelect.setValueState('Error');
-          return false;
-        } else {
-          oTargetUomSelect.setValueState('Success');
         }
 
         if (oIngredentTable.getItems().length < 1) {

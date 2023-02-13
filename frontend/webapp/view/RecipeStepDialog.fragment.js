@@ -78,47 +78,6 @@ sap.ui.define(
 
                 new Label({
                   required: true,
-                  text: '{i18n>recipeStepDialog.label.stepTarget}:',
-                  labelFor: 'recipeStepTypeInput'
-                }),
-
-                new FlexBox({
-                  direction: 'Row',
-                  items: [
-                    new Input(this.createId('targetInput'), {
-                      width: '100%',
-                      type: 'Number',
-                      value: '{/target}',
-                      liveChange: [
-                        oController.validateRecipeStepForm,
-                        oController
-                      ]
-                    }),
-
-                    new Select(this.createId('targetUomSelect'), {
-                      width: '7rem',
-                      forceSelection: false,
-                      selectedKey: '{/targetUom}',
-                      items: {
-                        path: 'appSettings>/targetUnits',
-                        template: new Item({
-                          key: '{appSettings>key}',
-                          text: {
-                            parts: [
-                              { value: oController },
-                              { path: 'appSettings>text' }
-                            ],
-                            formatter: oController.formatter.localizeText
-                          }
-                        })
-                      },
-                      change: [oController.validateRecipeStepForm, oController]
-                    }).addStyleClass('sapUiTinyMarginBegin')
-                  ]
-                }).addStyleClass('sapUiSmallMarginBottom'),
-
-                new Label({
-                  required: true,
                   text: {
                     path: 'i18n>entity.ingredient.plural',
                     formatter: oController.formatter.toTitleCase
