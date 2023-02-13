@@ -7,10 +7,11 @@ const storage = new CloudinaryStorage({
   params: {
     upload_preset: 'bakeryAppProduct',
     public_id: (req, file) => {
-      const name = req.body.name;
+      const productData = JSON.parse(req.body.product);
+      const name = productData.name;
 
       if (!name) {
-        throw new Error('Please add a name parameter');
+        throw new Error('Please add a image name parameter');
       }
 
       return name.replace(/ /g, '_');
