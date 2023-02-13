@@ -46,6 +46,8 @@ sap.ui.define(
         } else {
           this.loadProductData(this.sProductId);
         }
+
+        this.byId('imageComponent').bindProperty('src', '/image');
       },
 
       loadProductData: function (sProductId) {
@@ -318,11 +320,15 @@ sap.ui.define(
 
         const that = this,
           oModel = new JSONModel(),
-          oData = oEvent.getSource().getModel().getProperty('/'),
+          oModelData = oEvent.getSource().getModel().getProperty('/'),
+          oData = new FormData(),
           bIsEdit = window.location.href.includes('edit'),
           sType = bIsEdit ? 'PUT' : 'POST',
           oPage = this.byId('productDetailPage'),
           sUrl = `${this.sProductUrl}${bIsEdit ? oData.id : ''}`;
+
+        oData.append('product', JSON.stringify(oModelData));
+        oData.append('image', oModelData.image);
 
         oPage.setBusy(true);
 
@@ -330,6 +336,7 @@ sap.ui.define(
           url: sUrl,
           body: oData,
           type: sType,
+          headers: {},
           then: () => {
             let sId = oModel.getProperty('/id');
 
