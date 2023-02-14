@@ -1,7 +1,6 @@
 import expressAsyncHandler from 'express-async-handler';
 import cloudinary from '../config/cloudinary.js';
 import Product from '../models/productModel.js';
-import mongoose from 'mongoose';
 
 const deleteImage = (publicId) =>
   cloudinary.uploader.destroy(publicId, function (error, result) {
@@ -52,10 +51,10 @@ const getProductById = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const setProduct = expressAsyncHandler(async (req, res) => {
-  const { name, category, recipes } = req.body;
-  const image = req.file;
+  const data = JSON.parse(req.body.product);
+  const { name, category, recipe } = data;
 
-  req.body.image = image.url;
+  data.image = typeof req.file !== 'undefined' ? req.file.path : '';
 
   if (!name) {
     res.status(400);
@@ -63,67 +62,42 @@ const setProduct = expressAsyncHandler(async (req, res) => {
   }
   if (!category) {
     res.status(400);
-    errorHandler('Please add a category parameter', image);
+    errorHandler('Please add a category parameter', data.image);
   }
 
-  if (!recipes || recipes === null || typeof recipes !== 'object') {
+  if (!recipe || recipe === null || typeof recipe !== 'object') {
     res.status(400);
-    errorHandler('Please add a recipe parameter', image);
+    errorHandler('Please add a recipe parameter', data.image);
   }
 
-  if (
-    !recipes.operations ||
-    recipes.operations === null ||
-    typeof recipes.operations !== 'object' ||
-    recipes.operations.length === 0
-  ) {
-    res.status(400);
-    errorHandler('Please add an operations array of objects parameter', image);
-  }
-
-  const opStepsExists = recipes.operations.every(
-    (operation) => operation.step && !isNaN(operation.step)
-  );
-
-  if (!opStepsExists) {
-    res.status(400);
-    errorHandler('Please add a step parameter for each operation', image);
-  }
-
-  const opDescriptionsExists = recipes.operations.every(
-    (operation) => operation.description
-  );
-
-  if (!opDescriptionsExists) {
+  if (recipe.length < 1) {
     res.status(400);
     errorHandler(
-      'Please add a description parameter for each operation',
-      image
+      'Please add an operations array of objects parameter',
+      data.image
     );
   }
 
-  const opTargetExists = recipes.operations.every(
-    (operation) => operation.target && !isNaN(operation.target)
+  const stepOrdersExists = recipe.every(
+    (step) => step.order && !isNaN(step.order)
   );
 
-  if (!opTargetExists) {
+  if (!stepOrdersExists) {
     res.status(400);
-    errorHandler('Please add a target parameter for each operation', image);
+    errorHandler('Please add an order number for each recipe step', data.image);
   }
 
-  const opTargetUomExists = recipes.operations.every(
-    (operation) => operation.targetUom
-  );
+  const stepDescriptionsExists = recipe.every((step) => step.description);
 
-  if (!opTargetUomExists) {
+  if (!stepDescriptionsExists) {
     res.status(400);
     errorHandler(
-      'Please add a target unit of measure parameter for each operation',
-      image
+      'Please add a description parameter for each recipe step',
+      data.image
     );
   }
 
-  const product = await Product.create(req.body);
+  const product = await Product.create(data);
   res.status(200).json(product);
 });
 
@@ -136,15 +110,68 @@ const setProduct = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const updateProduct = expressAsyncHandler(async (req, res) => {
-  const updatedProducts = await Product.findOneAndUpdate(
-    { _id: req.params.id },
-    req.body,
+  const data = JSON.parse(req.body.product);
+  const { name, category, recipe } = data;
+
+  if (!data.id) {
+    res.status(400);
+    throw new Error('Please provide a product ID number');
+  }
+
+  if (!name) {
+    res.status(400);
+    throw new Error('Please add a name parameter');
+  }
+  if (!category) {
+    res.status(400);
+    errorHandler('Please add a category parameter', data.image);
+  }
+
+  if (!recipe || recipe === null || typeof recipe !== 'object') {
+    res.status(400);
+    errorHandler('Please add a recipe parameter', data.image);
+  }
+
+  if (recipe.length < 1) {
+    res.status(400);
+    errorHandler(
+      'Please add an operations array of objects parameter',
+      data.image
+    );
+  }
+
+  const stepOrdersExists = recipe.every(
+    (step) => step.order && !isNaN(step.order)
+  );
+
+  if (!stepOrdersExists) {
+    res.status(400);
+    errorHandler('Please add an order number for each recipe step', data.image);
+  }
+
+  const stepDescriptionsExists = recipe.every((step) => step.description);
+
+  if (!stepDescriptionsExists) {
+    res.status(400);
+    errorHandler(
+      'Please add a description parameter for each recipe step',
+      data.image
+    );
+  }
+
+  if (typeof req.file !== 'undefined') {
+    data.image = req.file.path;
+  }
+
+  const updatedProduct = await Product.findOneAndUpdate(
+    { _id: data.id },
+    data,
     {
       new: true,
       runValidators: true
     }
   );
-  res.status(200).json(updatedProducts);
+  res.status(200).json(updatedProduct);
 });
 
 /**
@@ -156,12 +183,10 @@ const updateProduct = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const deleteProduct = expressAsyncHandler(async (req, res) => {
-  const { image } = req.body;
+  let result = await Product.findOneAndRemove({ _id: req.params.id });
 
-  await Product.findOneAndRemove({ _id: req.params.id });
-
-  if (image) {
-    let publicId = image.split('/').pop().split('.')[0];
+  if (result && result.image) {
+    let publicId = result.image.split('/').pop().split('.')[0];
     deleteImage('bakeryApp/products/' + publicId);
   }
 

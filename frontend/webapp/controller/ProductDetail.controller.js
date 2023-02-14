@@ -12,9 +12,7 @@ sap.ui.define(
       onInit: function () {
         this.sProductUrl = this.getDataSources().products.uri;
 
-        this.getRouter()
-          .getRoute('productDetailView')
-          .attachPatternMatched(this.onBeforeShow, this);
+        this.getCurrentRoute().attachPatternMatched(this.onBeforeShow, this);
       },
 
       onBeforeShow: function (oEvent) {
@@ -26,7 +24,8 @@ sap.ui.define(
       },
 
       loadProductData: function () {
-        const oModel = new JSONModel(),
+        const that = this,
+          oModel = new JSONModel(),
           oComponent = this.byId('productDetailPage'),
           oController = this;
 
@@ -48,6 +47,7 @@ sap.ui.define(
                 )
               );
               oComponent.setModel(new JSONModel());
+              that.getRouter().navTo('products');
             }
           },
           finally: () => oComponent.setBusy(false)
@@ -70,11 +70,21 @@ sap.ui.define(
         return bEnabled ? 'sap-icon://accept' : 'sap-icon://cancel';
       },
 
-      onEditProductPress: function (oEvent) {
+      _refreshProductList: function () {
         this.getView()
           .getParent()
           .getParent()
-          .setLayout('TwoColumnsMidExpanded');
+          .getBeginColumnPages()[0]
+          .getController()
+          .loadProductListData();
+      },
+
+      _setProductPageLayout: function (sLayout) {
+        this.getView().getParent().getParent().setLayout(sLayout);
+      },
+
+      onEditProductPress: function (oEvent) {
+        this._setProductPageLayout('TwoColumnsMidExpanded');
 
         this.getRouter().navTo('productDetailEdit', {
           productId: this.sProductId
@@ -82,8 +92,7 @@ sap.ui.define(
       },
 
       onDeleteProductPress: function (oEvent) {
-        const that = this,
-          oModel = new JSONModel(),
+        const oModel = new JSONModel(),
           oPage = this.byId('productDetailPage'),
           sProductName = oPage.getModel().getProperty('/name');
 
@@ -101,25 +110,24 @@ sap.ui.define(
             onClose: (sAction) => {
               if (sAction === MessageBox.Action.YES) {
                 this.getData(oModel, {
-                  url: this.sProductUrl + '62baafa55a8ef84b51fa9999', //+ this.sProductId,
+                  url: this.sProductUrl + this.sProductId,
                   type: 'DELETE',
                   then: () => {
                     if (oModel.getProperty('/id')) {
                       MessageToast.show(
-                        that.localizeText('dynamic.toast.delete', sProductName),
+                        this.localizeText('dynamic.toast.delete', sProductName),
                         { at: 'center center' }
                       );
+                    } else {
+                      this._showDefaultErrorMessage();
                     }
                   },
                   finally: () => {
                     oPage.setBusy(false);
 
-                    this.getView()
-                      .getParent()
-                      .getParent()
-                      .setLayout('OneColumn');
-
-                    that.getRouter().navTo('products');
+                    this._refreshProductList();
+                    this._setProductPageLayout('OneColumn');
+                    this.getRouter().navTo('products');
                   }
                 });
               }

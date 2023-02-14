@@ -54,6 +54,25 @@ const setIngredient = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const updateIngredient = expressAsyncHandler(async (req, res) => {
+  const { name, uom, uomAbbreviation, price } = req.body;
+
+  if (!name) {
+    res.status(400);
+    throw new Error('Please add a name parameter');
+  }
+  if (!uom) {
+    res.status(400);
+    throw new Error('Please add a uom parameter');
+  }
+  if (!uomAbbreviation) {
+    res.status(400);
+    throw new Error('Please add a uomAbbreviation parameter');
+  }
+  if (!price) {
+    res.status(400);
+    throw new Error('Please add a price parameter');
+  }
+
   const updatedIngredient = await Ingredient.findOneAndUpdate(
     { _id: req.params.id },
     req.body,

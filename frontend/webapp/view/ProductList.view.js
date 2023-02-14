@@ -56,8 +56,17 @@ sap.ui.define(
                           liveChange: [oController.onProductSearch, oController]
                         }),
                         new ToolbarSpacer(),
-                        new Button({ icon: 'sap-icon://filter' }),
-                        new Button({ icon: 'sap-icon://group-2' }),
+                        new Button({
+                          icon: 'sap-icon://add',
+                          tooltip: {
+                            parts: [
+                              'i18n>dynamic.button.add.tooltip',
+                              'i18n>entity.product'
+                            ],
+                            formatter: oController.formatter.formatMessage
+                          },
+                          press: [oController.onAddBtnPress, oController]
+                        }),
                         new Button({
                           icon: 'sap-icon://synchronize',
                           press: [oController.loadProductListData, oController]

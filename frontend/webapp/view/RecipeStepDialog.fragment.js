@@ -6,7 +6,6 @@ sap.ui.define(
     'sap/m/ToolbarSpacer',
     'sap/m/SearchField',
     'sap/m/Button',
-    'sap/ui/layout/form/SimpleForm',
     'sap/m/Label',
     'sap/m/Input',
     'sap/m/TextArea',
@@ -22,7 +21,10 @@ sap.ui.define(
     'sap/m/ObjectNumber',
     'sap/ui/core/dnd/DragInfo',
     'sap/ui/core/dnd/DropInfo',
-    'sap/ui/core/dnd/DragDropInfo'
+    'sap/ui/core/dnd/DragDropInfo',
+    'sap/m/List',
+    'sap/m/CustomListItem',
+    'sap/m/FlexItemData'
   ],
   function (
     Dialog,
@@ -31,7 +33,6 @@ sap.ui.define(
     ToolbarSpacer,
     SearchField,
     Button,
-    SimpleForm,
     Label,
     Input,
     TextArea,
@@ -47,14 +48,16 @@ sap.ui.define(
     ObjectNumber,
     DragInfo,
     DropInfo,
-    DragDropInfo
+    DragDropInfo,
+    List,
+    CustomListItem,
+    FlexItemData
   ) {
     return {
       createContent: function (oController) {
         return new Dialog({
-          showHeader: false,
-          contentHeight: '70%',
-          contentWidth: '80%',
+          showHeader: true,
+          contentWidth: '60%',
           content: [
             new FlexBox({
               width: '100%',
@@ -63,49 +66,14 @@ sap.ui.define(
               items: [
                 new Label({
                   required: true,
-                  text: '{i18n>productWizard.recipeStep.label.stepName}:',
+                  text: '{i18n>recipeStepDialog.label.stepName}:',
                   labelFor: 'recipeStepNameInput'
                 }),
-                new Input(this.createId('recipeStepNameInput'), {
+                new Input(this.createId('nameInput'), {
                   width: '40%',
-                  value: '{/description}'
-                }).addStyleClass('sapUiSmallMarginBottom'),
 
-                new Label({
-                  required: true,
-                  text: '{i18n>productWizard.recipeStep.label.stepTarget}:',
-                  labelFor: 'recipeStepTypeInput'
-                }),
-
-                new FlexBox({
-                  direction: 'Row',
-                  width: '20%',
-                  justifyContent: 'SpaceBetween',
-                  items: [
-                    new Input(this.createId('recipeStepTargetInput'), {
-                      width: '100%',
-                      value: '{/target}'
-                    }),
-
-                    new Select(this.createId('recipeStepTargetUomSelect'), {
-                      width: '7rem',
-                      forceSelection: false,
-                      selectedKey: '{/targetUom}',
-                      items: {
-                        path: 'appSettings>/targetUnits',
-                        template: new Item({
-                          key: '{appSettings>key}',
-                          text: {
-                            parts: [
-                              { value: oController },
-                              { path: 'appSettings>text' }
-                            ],
-                            formatter: oController.formatter.localizeText
-                          }
-                        })
-                      }
-                    })
-                  ]
+                  value: '{/description}',
+                  liveChange: [oController.validateRecipeStepForm, oController]
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
                 new Label({
@@ -114,10 +82,10 @@ sap.ui.define(
                     path: 'i18n>entity.ingredient.plural',
                     formatter: oController.formatter.toTitleCase
                   },
-                  labelFor: 'recipeStepIngredientSelect'
+                  labelFor: 'selectedIngredientTable'
                 }),
 
-                new FlexBox(this.createId('recipeStepIngredientSelect'), {
+                new FlexBox(this.createId('ingredientSelectContainer'), {
                   width: '100%',
                   direction: 'Row',
                   items: [
@@ -132,7 +100,7 @@ sap.ui.define(
                           new MenuItem({
                             text: {
                               parts: [
-                                'i18n>productWizard.recipeStep.moveToSelectedEntity',
+                                'i18n>recipeStepDialog.moveToSelectedEntity',
                                 'i18n>entity.ingredient.plural'
                               ],
                               formatter: oController.formatter.formatMessage
@@ -251,7 +219,7 @@ sap.ui.define(
                           new MenuItem({
                             text: {
                               parts: [
-                                'i18n>productWizard.recipeStep.removeFromSelectedEntity',
+                                'i18n>recipeStepDialog.removeFromSelectedEntity',
                                 'i18n>entity.ingredient.plural'
                               ],
                               formatter: oController.formatter.formatMessage
@@ -284,7 +252,7 @@ sap.ui.define(
                         }),
                         new Column({
                           header: new Text({
-                            text: '{i18n>productWizard.recipeStep.columnHeading.amount}'
+                            text: '{i18n>recipeStepDialog.columnHeading.amount}'
                           })
                         }),
                         new Column({
@@ -310,7 +278,7 @@ sap.ui.define(
                                 type: 'sap.ui.model.type.Float'
                               },
                               liveChange: [
-                                oController.validateSelectedIngredientsAmount,
+                                oController.validateRecipeStepForm,
                                 oController
                               ]
                             }),
@@ -350,56 +318,66 @@ sap.ui.define(
 
                 new Label({
                   required: true,
-                  text: '{i18n>productWizard.recipeStep.label.intructions}:',
-                  labelFor: 'recipeStepNameInput'
+                  text: '{i18n>recipeStepDialog.label.intructions}:',
+                  labelFor: 'instructionList'
+                }).addStyleClass('sapUiSmallMarginBottom'),
+
+                new List(this.createId('instructionList'), {
+                  busyIndicatorDelay: 1,
+                  items: {
+                    path: '/instructions',
+                    template: new CustomListItem({
+                      content: [
+                        new FlexBox({
+                          direction: 'Row',
+                          justifyContent: 'SpaceBetween',
+                          alignItems: 'Center',
+                          width: '100%',
+                          items: [
+                            new Label({ text: '{order}:' }),
+                            new TextArea({
+                              width: '100%',
+                              layoutData: new FlexItemData({ minWidth: '90%' }),
+                              value: '{instruction}',
+                              liveChange: [
+                                oController.validateRecipeStepForm,
+                                oController
+                              ]
+                            }),
+                            new Button({
+                              icon: 'sap-icon://decline',
+                              type: 'Transparent',
+                              enabled: {
+                                path: 'order',
+                                formatter:
+                                  oController.formatRemoveInstructionEnabled
+                              },
+                              press: [
+                                oController.onRemoveInstructionBtnPress,
+                                oController
+                              ],
+                              tooltip:
+                                '{i18n>recipeStepDialog.button.removeInstruction.tooltip}'
+                            })
+                          ]
+                        })
+                      ]
+                    }).addStyleClass('sapUiSmallMarginBottom')
+                  }
                 }),
 
-                new SimpleForm(this.createId('instructionForm'), {
-                  width: '90%',
-                  layout: 'ResponsiveGridLayout',
-                  content: [
-                    new Label({
-                      required: true,
-                      text: '1'
-                    }),
-                    new TextArea({
-                      value: '{/instructions/0/}'
-                    })
-                  ]
-                }),
-
-                new FlexBox({
-                  width: '100%',
-                  direction: 'Row',
-                  justifyContent: 'SpaceBetween',
-                  items: [
-                    new Button({
-                      icon: 'sap-icon://add',
-                      type: 'Accept',
-                      press: [
-                        oController.onAddInstructionBtnPress,
-                        oController
-                      ],
-                      tooltip:
-                        '{i18n>productWizard.recipeStep.button.addInstruction.tooltip}'
-                    }).addStyleClass('sapUiSmallMarginRight'),
-                    new Button({
-                      icon: 'sap-icon://less',
-                      type: 'Reject',
-                      press: [
-                        oController.onRemoveLastInstructionBtnPress,
-                        oController
-                      ],
-                      tooltip:
-                        '{i18n>productWizard.recipeStep.button.removeInstruction.tooltip}'
-                    })
-                  ]
+                new Button({
+                  icon: 'sap-icon://add',
+                  type: 'Emphasized',
+                  press: [oController.onAddInstructionBtnPress, oController],
+                  tooltip:
+                    '{i18n>recipeStepDialog.button.addInstruction.tooltip}'
                 })
               ]
             })
           ],
           buttons: [
-            new Button({
+            new Button(this.createId('submitBtn'), {
               text: '{i18n>Submit}',
               enabled: false,
               type: 'Emphasized',

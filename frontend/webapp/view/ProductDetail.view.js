@@ -69,12 +69,13 @@ sap.ui.define(
                   heading: new Title({ text: '{/name}' }),
                   actions: [
                     new Button({
-                      text: '{i18n>Edit}',
-                      type: 'Emphasized',
+                      icon: 'sap-icon://edit',
+                      tooltip: '{i18n>Edit}',
                       press: [oController.onEditProductPress, oController]
                     }),
                     new Button({
-                      text: '{i18n>Delete}',
+                      icon: 'sap-icon://delete',
+                      tooltip: '{i18n>Delete}',
                       press: [oController.onDeleteProductPress, oController]
                     })
                   ]
@@ -166,11 +167,11 @@ sap.ui.define(
                   new VBox({
                     width: '100%',
                     items: [
-                      new Title({
+                      new Label({
                         text: '{i18n>product.title.recipeDetails}',
-                        level: 'H3',
-                        titleStyle: 'H3'
-                      }),
+                        required: false,
+                        showColon: false
+                      }).addStyleClass('titleLbl'),
                       new VBox({
                         width: '100%',
                         items: {

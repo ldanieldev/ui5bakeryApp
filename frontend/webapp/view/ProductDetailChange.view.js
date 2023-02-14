@@ -8,7 +8,7 @@ sap.ui.define(
     'sap/m/Title',
     'sap/m/Input',
     'sap/m/Select',
-    'sap/ui/core/ListItem',
+    'sap/ui/core/Item',
     'sap/m/TextArea',
     'sap/m/Label',
     'sap/m/Text',
@@ -27,7 +27,8 @@ sap.ui.define(
     'sap/m/Toolbar',
     'sap/m/ToolbarSpacer',
     'sap/ui/layout/form/ColumnLayout',
-    'sap/ui/unified/FileUploader'
+    'sap/ui/unified/FileUploader',
+    'sap/ui/core/Icon'
   ],
   function (
     View,
@@ -38,7 +39,7 @@ sap.ui.define(
     Title,
     Input,
     Select,
-    ListItem,
+    Item,
     TextArea,
     Label,
     Text,
@@ -57,7 +58,8 @@ sap.ui.define(
     Toolbar,
     ToolbarSpacer,
     ColumnLayout,
-    FileUploader
+    FileUploader,
+    Icon
   ) {
     'use strict';
     return View.extend('bakeryApp.view.ProductDetailChange', {
@@ -78,10 +80,12 @@ sap.ui.define(
                 title: new DynamicPageTitle({
                   heading: new Title({ text: '{/name}' }),
                   actions: [
-                    new Button({
+                    new Button('saveBtn', {
                       text: '{i18n>Save}',
                       icon: 'sap-icon://save',
-                      type: 'Accept'
+                      enabled: false,
+                      type: 'Accept',
+                      press: [oController.onSaveBtnPress, oController]
                     }),
                     new Button({
                       text: '{i18n>Cancel}',
@@ -99,13 +103,31 @@ sap.ui.define(
                       new VBox({
                         width: '10%',
                         items: [
-                          new Image({ src: '{/image}', height: '8rem' }),
+                          new Image('imageComponent', {
+                            visible: {
+                              path: '/image',
+                              formatter: oController.formatImageVisible
+                            },
+                            src: '{/image}',
+                            height: '8rem'
+                          }),
+                          new Icon('imageIcon', {
+                            visible: {
+                              path: '/image',
+                              formatter: oController.formatIconVisible
+                            },
+                            src: 'sap-icon://add-photo',
+                            size: '5rem'
+                          }).addStyleClass(
+                            'sapUiSmallMarginBottom sapUiTinyMarginBegin'
+                          ),
                           new FileUploader('imageInput', {
                             buttonOnly: true,
                             maximumFileSize: 0.5,
+                            icon: 'sap-icon://add-photo',
                             fileType: 'jpg,png',
                             style: 'Emphasized',
-                            value: '{/imagePath}',
+                            value: '{/image}',
                             fileSizeExceed: [
                               oController.onImageFileSizeExceeded,
                               oController
@@ -122,24 +144,30 @@ sap.ui.define(
                             layout: 'ResponsiveGridLayout',
                             content: [
                               new Label({
-                                text: '{i18n>product.form.name}'
+                                text: '{i18n>product.form.name}',
+                                required: true
                               }),
                               new Input('nameInput', {
                                 value: {
                                   path: '/name',
                                   type: 'sap.ui.model.type.String'
-                                }
+                                },
+                                liveChange: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               }),
                               new Label({
                                 text: '{i18n>product.form.category}',
-                                labelFor: 'categoryInput'
+                                labelFor: 'categoryInput',
+                                required: true
                               }),
                               new Select('categoryInput', {
                                 forceSelection: false,
                                 selectedKey: '{/category}',
                                 items: {
                                   path: 'appSettings>/productCategories',
-                                  template: new ListItem({
+                                  template: new Item({
                                     key: '{appSettings>key}',
                                     text: {
                                       parts: [
@@ -150,7 +178,11 @@ sap.ui.define(
                                         oController.formatter.localizeText
                                     }
                                   })
-                                }
+                                },
+                                change: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               }),
                               new Label({
                                 text: '{i18n>product.form.tags}',
@@ -159,6 +191,7 @@ sap.ui.define(
                               new MultiInput('tagInput', {
                                 busyIndicatorDelay: 1,
                                 showClearIcon: true,
+                                maxTokens: 5,
                                 showValueHelp: false,
                                 tokens: {
                                   path: '/tags',
@@ -167,6 +200,10 @@ sap.ui.define(
                                     text: '{tag}'
                                   })
                                 },
+                                change: [
+                                  oController.onTagInputChange,
+                                  oController
+                                ],
                                 tokenUpdate: [
                                   oController.onTagInputTokenUpdate,
                                   oController
@@ -188,11 +225,15 @@ sap.ui.define(
                                 labelFor: 'descriptionInput'
                               }),
                               new TextArea('descriptionInput', {
-                                rows: 9,
+                                rows: 5,
                                 value: {
                                   path: '/description',
                                   type: 'sap.ui.model.type.String'
-                                }
+                                },
+                                liveChange: [
+                                  oController.validateProductForm,
+                                  oController
+                                ]
                               })
                             ]
                           })
@@ -211,7 +252,11 @@ sap.ui.define(
                               path: '/enabled',
                               type: 'sap.ui.model.type.Boolean'
                             },
-                            type: 'AcceptReject'
+                            type: 'AcceptReject',
+                            change: [
+                              oController.validateProductForm,
+                              oController
+                            ]
                           })
                         ]
                       })
@@ -222,12 +267,12 @@ sap.ui.define(
                   new VBox({
                     width: '100%',
                     items: [
-                      new Title({
+                      new Label({
                         text: '{i18n>product.title.recipeDetails}',
-                        level: 'H3',
-                        titleStyle: 'H3'
-                      }),
-                      new VBox({
+                        required: true,
+                        showColon: false
+                      }).addStyleClass('titleLbl'),
+                      new VBox('recipeStepsContainer', {
                         width: '100%',
                         items: {
                           path: '/recipe',
@@ -248,7 +293,7 @@ sap.ui.define(
                                   icon: 'sap-icon://edit',
                                   type: 'Emphasized',
                                   press: [
-                                    oController.onEditRecipeStepPress,
+                                    oController.onEditRecipeStepBtnPress,
                                     oController
                                   ]
                                 }),
@@ -256,7 +301,7 @@ sap.ui.define(
                                   tooltip: '{i18n>Delete}',
                                   icon: 'sap-icon://delete',
                                   press: [
-                                    oController.onDeleteRecipeStepPress,
+                                    oController.onDeleteRecipeStepBtnPress,
                                     oController
                                   ]
                                 })
@@ -299,7 +344,16 @@ sap.ui.define(
                             ]
                           }).addStyleClass('sapUiSmallMarginTop')
                         }
-                      })
+                      }),
+                      new Button({
+                        icon: 'sap-icon://add-activity',
+                        type: 'Emphasized',
+                        text: '{i18n>product.form.button.addRecipeStep.tooltip}',
+                        press: [
+                          oController.onAddRecipeStepBtnPress,
+                          oController
+                        ]
+                      }).addStyleClass('sapUiTinyMarginTop')
                     ]
                   })
                 ]

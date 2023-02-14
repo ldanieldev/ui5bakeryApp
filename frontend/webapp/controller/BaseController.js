@@ -22,6 +22,18 @@ sap.ui.define(
       },
 
       /**
+       * return the route object for the current hash
+       * @public
+       * @param {sap.ui.core.routing.Router} router the router for this component
+       * @returns {sap.ui.core.routing.Route} the  route based on the current hash
+       */
+      getCurrentRoute: function (router = this.getRouter()) {
+        const currentHash = router.getHashChanger().getHash();
+        const { name } = router.getRouteInfoByHash(currentHash);
+        return router.getRoute(name);
+      },
+
+      /**
        * Event handler for navigating back.
        * It there is a history entry we go one step back in the browser history
        * If not, it will replace the current entry of the browser history with the master route.
@@ -31,7 +43,6 @@ sap.ui.define(
         var sPreviousHash = History.getInstance().getPreviousHash();
 
         if (sPreviousHash !== undefined) {
-          // eslint-disable-next-line sap-no-history-manipulation
           history.go(-1);
         } else {
           this.getRouter().navTo('home', {}, true);
@@ -112,43 +123,66 @@ sap.ui.define(
        * @param {JSON} oArgs
        */
       getData: function (oModel, oArgs) {
-        const oParams = {
+        const oRequestOptions = {
           url: '',
-          params: {},
-          async: true,
+          body: undefined,
           type: 'GET',
-          then: () => {},
-          catch: (oErr) => {
-            if (oErr.statusCode === 0) {
-              MessageBox.error(this.localizeText('error.connection.message'), {
-                title: this.localizeText('error.connection.title')
-              });
-            } else if (oErr.responseText.search('duplicate key error') >= 0) {
-              MessageBox.error(this.localizeText('error.duplicate.message'), {
-                title: this.localizeText('error.duplicate.title')
-              });
-            } else if (oErr.statusCode) {
-              MessageBox.error(oErr.statusText, { title: oErr.message });
-            } else {
-              MessageBox.error(this.localizeText('error.default.message'), {
-                title: this.localizeText('error.default.title')
-              });
-            }
+          headers: {
+            'Content-Type': 'application/json'
           },
+          then: () => {},
           finally: () => {},
           ...oArgs
         };
 
-        oModel
-          .loadData(oParams.url, oParams.params, oParams.async, oParams.type)
-          .catch(oParams.catch)
-          .then(oParams.then)
-          .finally(oParams.finally);
+        fetch(oRequestOptions.url, {
+          method: oRequestOptions.type,
+          headers: oRequestOptions.headers,
+          body:
+            oRequestOptions.body &&
+            oRequestOptions.headers['Content-Type'] === 'application/json'
+              ? JSON.stringify(oRequestOptions.body)
+              : oRequestOptions.body
+        })
+          .then((response) => {
+            if (response.statusCode === 0) {
+              MessageBox.error(this.localizeText('error.connection.message'), {
+                title: this.localizeText('error.connection.title')
+              });
+            } else if (response.statusCode) {
+              MessageBox.error(data.statusText, { title: data.message });
+            } else {
+              return response.json();
+            }
+          })
+          .then((data) => {
+            if (!data || !data.message) {
+              oModel.setData(data);
+            } else if (data.message.search('duplicate key error') >= 0) {
+              MessageBox.error(this.localizeText('error.duplicate.message'), {
+                title: this.localizeText('error.duplicate.title')
+              });
+            } else {
+              this._showDefaultErrorMessage();
+            }
+          })
+          .then(oRequestOptions.then)
+          .finally(oRequestOptions.finally);
+      },
+
+      /**
+       * Convenience method to show a generic error message
+       * @private
+       */
+      _showDefaultErrorMessage: function () {
+        MessageBox.error(this.localizeText('error.default.message'), {
+          title: this.localizeText('error.default.title')
+        });
       },
 
       /**
        * Convenience method to apply filters to tables as well as setting dyanmic no data text.
-       * @public
+       * @private
        * @param {sap.m.Table/sap.f.GridList} oList table/gridList object filters should be applied to
        * @param {Array} aFilters array of filters to be applied
        * @param {String} sEntityI18nCode i18n key for the entity of the table for no data text

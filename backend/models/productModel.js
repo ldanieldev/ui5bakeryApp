@@ -1,73 +1,58 @@
 import mongoose from 'mongoose';
+import utils from '../utils.js';
+
 const { Schema } = mongoose;
+const { getDecimal, setDecimal } = utils;
 
-const getDecimal = (value) =>
-  typeof value !== 'undefined' ? parseFloat(value.toString()) : value;
-
-const setDecimal = (value) => {
-  if (typeof value !== 'undefined') {
-    let convertedValue = parseFloat(value.toString());
-
-    return isNaN(convertedValue) ? value : convertedValue;
-  } else {
-    return value;
-  }
-};
-
-const OperationSchema = new Schema(
-  {
-    order: {
-      type: Number,
-      required: [true, 'Please enter an step order number']
-    },
-    description: {
-      type: String,
-      required: [true, 'Please enter an operation step description']
-    },
-    instructions: [
-      {
-        order: Number,
-        instruction: String
-      }
-    ],
-    target: {
-      required: [true, 'Please enter a target limit'],
-      type: mongoose.Types.Decimal128,
-      get: getDecimal,
-      set: setDecimal
-    },
-    targetUom: {
-      type: String,
-      required: [true, 'Please enter a target unit of measure']
-    },
-    ingredients: [
-      {
-        ingredient: {
-          type: mongoose.Types.ObjectId,
-          ref: 'Ingredients'
-        },
-        amount: {
-          type: mongoose.Types.Decimal128,
-          get: getDecimal,
-          set: setDecimal
-        }
-      }
-    ]
+const RecipeSchema = new Schema({
+  order: {
+    type: Number,
+    required: [true, 'Please enter an step order number']
   },
-  { toJSON: { getters: true } }
-);
-
-/*
-TODO: https://stackoverflow.com/questions/45475639/mongoose-set-this-field-to-true-others-will-be-false
-RecipeSchema.pre('save', function (next) {
-  if (this.active === true) {
-    this.constructor
-      .update({}, { $set: { default: false } }, { multi: true })
-      .exec();
-  }
-  next();
+  description: {
+    type: String,
+    required: [true, 'Please enter an operation step description']
+  },
+  ingredients: [
+    {
+      name: {
+        type: String,
+        required: [true, 'Please add an ingredient name value']
+      },
+      uom: {
+        type: String,
+        required: [true, 'Please add an ingredient unit of measurement value']
+      },
+      uomAbbreviation: {
+        type: String,
+        required: [
+          true,
+          'Please add an ingredient unit of measurement abbreviation value'
+        ]
+      },
+      amount: {
+        required: [true, 'Please enter an ingredient amount'],
+        default: 0,
+        min: 0,
+        type: Number,
+        get: getDecimal,
+        set: setDecimal
+      }
+    }
+  ],
+  instructions: [
+    {
+      order: {
+        type: Number,
+        required: [true, 'Please enter an instruction order number']
+      },
+      instruction: {
+        type: String,
+        required: [true, 'Please enter an instruction detail']
+      }
+    }
+  ]
 });
-*/
 
 const ProductSchema = new Schema(
   {
@@ -86,16 +71,10 @@ const ProductSchema = new Schema(
       required: [true, 'Please enter a product category']
     },
     image: String,
-    recipe: {
-      operations: [OperationSchema]
-    },
+    recipe: [RecipeSchema],
     tags: [{ tag: String }]
   },
   { timestamps: true, toJSON: { getters: true } }
 );
-
-ProductSchema.index({ name: 1, type: -1 });
-ProductSchema.index({ category: 1, type: -1 });
-ProductSchema.index({ tags: 1, type: -1 });
 
 export default mongoose.model('Product', ProductSchema);
