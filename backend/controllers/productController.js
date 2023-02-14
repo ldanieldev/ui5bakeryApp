@@ -183,12 +183,10 @@ const updateProduct = expressAsyncHandler(async (req, res) => {
  * @private
  */
 const deleteProduct = expressAsyncHandler(async (req, res) => {
-  const { image } = req.body;
+  let result = await Product.findOneAndRemove({ _id: req.params.id });
 
-  await Product.findOneAndRemove({ _id: req.params.id });
-
-  if (image) {
-    let publicId = image.split('/').pop().split('.')[0];
+  if (result && result.image) {
+    let publicId = result.image.split('/').pop().split('.')[0];
     deleteImage('bakeryApp/products/' + publicId);
   }
 
