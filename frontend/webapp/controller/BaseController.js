@@ -167,10 +167,7 @@ sap.ui.define(
             }
           })
           .then(oRequestOptions.then)
-          .finally(oRequestOptions.finally)
-          .catch((oErr) => {
-            MessageBox.error(oErr.message);
-          });
+          .finally(oRequestOptions.finally);
       },
 
       /**
