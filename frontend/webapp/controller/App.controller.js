@@ -36,8 +36,6 @@ sap.ui.define(
       },
 
       onAfterNavigate: function (oEvent) {
-        // const sTitle = oEvent.getParameter('to');
-        // this.byId('appHeaderTitle').setText(sTitle);
         oEvent.getSource().setBusy(false);
       },
 

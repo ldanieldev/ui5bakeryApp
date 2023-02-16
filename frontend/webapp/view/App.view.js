@@ -155,12 +155,6 @@ sap.ui.define(
               change: [oController.onNavItemSelect, oController],
               items: [
                 new ProductSwitchItem({
-                  src: 'sap-icon://retail-store-manager',
-                  title: '{i18n>nav.orders.title}',
-                  subTitle: '{i18n>nav.orders.subTitle}',
-                  targetSrc: 'orders'
-                }),
-                new ProductSwitchItem({
                   src: 'sap-icon://lab',
                   title: '{i18n>nav.products.title}',
                   subTitle: '{i18n>nav.products.subTitle}',
@@ -284,10 +278,6 @@ sap.ui.define(
                                         ]
                                       })
                                     ]
-                                  }),
-                                  new MenuItem({
-                                    text: '{i18n>app.header.settings.language}',
-                                    icon: 'sap-icon://translate'
                                   })
                                 ]
                               })

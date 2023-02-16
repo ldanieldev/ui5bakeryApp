@@ -19,12 +19,12 @@
     "authors": "Le-Andris Daniel",
     "dataSources": {
       "ingredients": {
-        "uri": "http://localhost:5000/api/ingredients/",
+        "uri": "https://ldanieldev.alwaysdata.net/api/ingredients/",
         "type": "JSON",
         "settings": {}
       },
       "products": {
-        "uri": "http://localhost:5000/api/products/",
+        "uri": "https://ldanieldev.alwaysdata.net/api/products/",
         "type": "JSON",
         "settings": {}
       }
@@ -105,17 +105,7 @@
         {
           "pattern": "",
           "name": "home",
-          "target": "home"
-        },
-        {
-          "pattern": "orders",
-          "name": "orders",
-          "target": ["orderList"]
-        },
-        {
-          "pattern": "orders/{orderId}",
-          "name": "orderDetail",
-          "target": ["orderList", "orderDetail"]
+          "target": ["productList"]
         },
         {
           "pattern": "ingredients",
@@ -148,32 +138,6 @@
           "viewId": "notFound",
           "viewName": "module:bakeryApp/view/NotFound.view",
           "viewLevel": 2
-        },
-        "home": {
-          "viewId": "homeView",
-          "viewName": "module:bakeryApp/view/Home.view",
-          "viewLevel": 1
-        },
-        "ordersContainer": {
-          "viewId": "ordersContainerView",
-          "viewName": "module:bakeryApp/view/Orders.view",
-          "viewLevel": 1
-        },
-        "orderList": {
-          "parent": "ordersContainer",
-          "viewId": "orderListView",
-          "controlId": "orderFlexLayout",
-          "controlAggregation": "beginColumnPages",
-          "viewName": "module:bakeryApp/view/OrderList.view",
-          "viewLevel": 2
-        },
-        "orderDetail": {
-          "parent": "ordersContainer",
-          "viewId": "orderDetailView",
-          "viewName": "module:bakeryApp/view/OrderDetail.view",
-          "controlId": "orderFlexLayout",
-          "controlAggregation": "midColumnPages",
-          "viewLevel": 3
         },
         "ingredients": {
           "viewId": "ingredientsView",

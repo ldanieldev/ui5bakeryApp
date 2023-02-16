@@ -10,7 +10,9 @@ sap.ui.define(['./BaseController'], function (BaseController) {
       const sViewId = oEvent.getParameters().name;
 
       this.byId('productFlexLayout').setLayout(
-        sViewId === 'products' ? 'OneColumn' : 'TwoColumnsMidExpanded'
+        sViewId === 'products' || sViewId === 'home'
+          ? 'OneColumn'
+          : 'TwoColumnsMidExpanded'
       );
     }
   });

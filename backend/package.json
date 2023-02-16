@@ -1,12 +1,12 @@
 {
   "name": "bakery-api",
   "version": "1.0.0",
-  "description": "API for bakery example app",
+  "description": "API for bakery app",
   "main": "server.js",
   "type": "module",
   "scripts": {
-    "start": "node backend/server.js",
-    "server": "nodemon backend/server.js"
+    "start": "node server.js",
+    "server": "nodemon server.js"
   },
   "author": "Le-Andris Daniel",
   "license": "MIT",
