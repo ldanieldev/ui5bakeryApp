@@ -719,17 +719,22 @@ sap.ui.define(
         }
 
         if (oIngredentTable.getItems().length > 0) {
+          let isValidIngredientList = true;
+
           oIngredentTable.getItems().forEach((oItem) => {
             let oCells = oItem.getCells(),
               oAmoutCell = oCells[1];
 
             if (isNaN(parseInt(oAmoutCell.getValue(), 10))) {
               oAmoutCell.setValueState('Error');
+              isValidIngredientList = false;
               return false;
             } else {
               oAmoutCell.setValueState('Success');
             }
           });
+
+          if (!isValidIngredientList) return false;
         }
 
         let isValidInstructionList = true;
