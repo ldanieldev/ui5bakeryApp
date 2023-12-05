@@ -77,7 +77,7 @@ sap.ui.define(
                 }).addStyleClass('sapUiSmallMarginBottom'),
 
                 new Label({
-                  required: true,
+                  required: false,
                   text: {
                     path: 'i18n>entity.ingredient.plural',
                     formatter: oController.formatter.toTitleCase

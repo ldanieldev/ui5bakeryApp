@@ -718,40 +718,34 @@ sap.ui.define(
           oNameInput.setValueState('Success');
         }
 
-        if (oIngredentTable.getItems().length < 1) {
-          return false;
-        } else {
-          let isValidIngedients = true;
-
+        if (oIngredentTable.getItems().length > 0) {
           oIngredentTable.getItems().forEach((oItem) => {
             let oCells = oItem.getCells(),
               oAmoutCell = oCells[1];
 
             if (isNaN(parseInt(oAmoutCell.getValue(), 10))) {
               oAmoutCell.setValueState('Error');
-              isValidIngedients = false;
+              return false;
             } else {
               oAmoutCell.setValueState('Success');
             }
           });
-
-          if (!isValidIngedients) return false;
         }
 
-        let isValidInstructions = true;
-
+        let isValidInstructionList = true;
         oInstructionList.getItems().forEach((oListItem) => {
           let oTextArea = oListItem.getContent()[0].getItems()[1];
 
           if (!oTextArea.getValue()) {
             oTextArea.setValueState('Error');
-            isValidInstructions = false;
+            isValidInstructionList = false;
+            return false;
           } else {
             oTextArea.setValueState('Success');
           }
         });
 
-        if (!isValidInstructions) return false;
+        if (!isValidInstructionList) return false;
 
         oSubmitBtn.setEnabled(true);
 
