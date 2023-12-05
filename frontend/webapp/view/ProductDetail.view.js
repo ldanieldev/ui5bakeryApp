@@ -20,9 +20,7 @@ sap.ui.define(
     'sap/ui/layout/form/FormContainer',
     'sap/ui/layout/form/FormElement',
     'sap/m/Panel',
-    'sap/m/Toolbar',
-    'sap/m/ToolbarSpacer',
-    'sap/ui/layout/form/ColumnLayout'
+    'sap/ui/layout/form/ResponsiveGridLayout'
   ],
   function (
     View,
@@ -45,9 +43,7 @@ sap.ui.define(
     FormContainer,
     FormElement,
     Panel,
-    Toolbar,
-    ToolbarSpacer,
-    ColumnLayout
+    ResponsiveGridLayout
   ) {
     'use strict';
     return View.extend('bakeryApp.view.ProductDetail', {
@@ -185,11 +181,14 @@ sap.ui.define(
                             },
                             content: [
                               new Form({
-                                layout: new ColumnLayout(),
+                                layout: new ResponsiveGridLayout({
+                                  columnsM: 2
+                                }),
                                 formContainers: [
                                   new FormContainer({
                                     title:
                                       '{i18n>product.form.title.ingredients}',
+                                    visible: '{= ${ingredients}.length > 0}',
                                     formElements: {
                                       path: 'ingredients',
                                       templateShareable: false,

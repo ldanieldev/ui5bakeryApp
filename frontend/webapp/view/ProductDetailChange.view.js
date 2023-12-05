@@ -26,7 +26,7 @@ sap.ui.define(
     'sap/m/Panel',
     'sap/m/Toolbar',
     'sap/m/ToolbarSpacer',
-    'sap/ui/layout/form/ColumnLayout',
+    'sap/ui/layout/form/ResponsiveGridLayout',
     'sap/ui/unified/FileUploader',
     'sap/ui/core/Icon'
   ],
@@ -57,7 +57,7 @@ sap.ui.define(
     Panel,
     Toolbar,
     ToolbarSpacer,
-    ColumnLayout,
+    ResponsiveGridLayout,
     FileUploader,
     Icon
   ) {
@@ -309,11 +309,14 @@ sap.ui.define(
                             }),
                             content: [
                               new Form({
-                                layout: new ColumnLayout(),
+                                layout: new ResponsiveGridLayout({
+                                  columnsM: 2
+                                }),
                                 formContainers: [
                                   new FormContainer({
                                     title:
                                       '{i18n>product.form.title.ingredients}',
+                                    visible: '{= ${ingredients}.length > 0}',
                                     formElements: {
                                       path: 'ingredients',
                                       templateShareable: false,
