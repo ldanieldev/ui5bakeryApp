@@ -592,6 +592,8 @@ sap.ui.define(
             (oIngredient) => oIngredient.id !== oSelectedItemData.id
           )
         );
+
+        this.validateRecipeStepForm();
       },
 
       onAvailableIngredientsTableDrop: function (oEvent) {
@@ -629,6 +631,8 @@ sap.ui.define(
             )
           );
         }
+
+        this.validateRecipeStepForm();
       },
 
       onSelectedIngredientsTableDrop: function (oEvent) {
