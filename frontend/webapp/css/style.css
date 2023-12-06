@@ -42,3 +42,25 @@
 .sapUiTheme-sap_horizon .titleLbl {
   color: #1d2d3e;
 }
+
+@media screen and (max-width: 800px) {
+  .responsiveFlexBox {
+    flex-direction: column;
+  }
+  .responsiveFlexBoxReversed {
+    flex-direction: row;
+  }
+  .responsiveRotateIcon {
+    transform: rotate(90deg);
+    margin-right: 1rem;
+  }
+}
+
+@media screen and (min-width: 801px) {
+  .responsiveFlexBox {
+    flex-direction: row;
+  }
+  .responsiveFlexBoxReversed {
+    flex-direction: column;
+  }
+}

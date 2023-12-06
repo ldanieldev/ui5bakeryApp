@@ -101,7 +101,7 @@ sap.ui.define(
                     fitContainer: true,
                     items: [
                       new VBox({
-                        width: '10%',
+                        width: '20%',
                         items: [
                           new Image('imageComponent', {
                             visible: {
@@ -137,7 +137,7 @@ sap.ui.define(
                         ]
                       }),
                       new VBox({
-                        width: '40%',
+                        width: '35%',
                         items: [
                           new SimpleForm({
                             editable: false,
@@ -240,7 +240,7 @@ sap.ui.define(
                         ]
                       }),
                       new VBox({
-                        width: '5%',
+                        width: '10%',
                         alignItems: 'End',
                         items: [
                           new Label({

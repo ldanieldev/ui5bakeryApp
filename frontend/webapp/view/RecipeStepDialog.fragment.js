@@ -9,8 +9,6 @@ sap.ui.define(
     'sap/m/Label',
     'sap/m/Input',
     'sap/m/TextArea',
-    'sap/m/Select',
-    'sap/ui/core/Item',
     'sap/m/Text',
     'sap/m/Title',
     'sap/m/Table',
@@ -36,8 +34,6 @@ sap.ui.define(
     Label,
     Input,
     TextArea,
-    Select,
-    Item,
     Text,
     Title,
     Table,
@@ -57,7 +53,7 @@ sap.ui.define(
       createContent: function (oController) {
         return new Dialog({
           showHeader: true,
-          contentWidth: '60%',
+          contentWidth: '85%',
           content: [
             new FlexBox({
               width: '100%',
@@ -192,7 +188,9 @@ sap.ui.define(
                             oController.moveToSelectedIngredientsTable,
                             oController
                           ]
-                        }).addStyleClass('sapUiTinyMarginBottom'),
+                        }).addStyleClass(
+                          'sapUiTinyMarginBottom responsiveRotateIcon'
+                        ),
                         new Button({
                           icon: 'sap-icon://navigation-left-arrow',
                           tooltip: 'Move to available',
@@ -200,9 +198,11 @@ sap.ui.define(
                             oController.moveToAvailableProductsTable,
                             oController
                           ]
-                        })
+                        }).addStyleClass('responsiveRotateIcon')
                       ]
-                    }),
+                    }).addStyleClass(
+                      'sapUiSmallMarginBeginEnd responsiveFlexBoxReversed'
+                    ),
 
                     new Table(this.createId('selectedIngredientTable'), {
                       noDataText: {
@@ -314,7 +314,7 @@ sap.ui.define(
                       ]
                     })
                   ]
-                }).addStyleClass('sapUiSmallMarginBottom'),
+                }).addStyleClass('sapUiSmallMarginBottom responsiveFlexBox'),
 
                 new Label({
                   required: true,

@@ -73,6 +73,11 @@ sap.ui.define(
                       icon: 'sap-icon://delete',
                       tooltip: '{i18n>Delete}',
                       press: [oController.onDeleteProductPress, oController]
+                    }),
+                    new Button({
+                      icon: 'sap-icon://undo',
+                      tooltip: '{i18n>Close} {i18n>entity.product}',
+                      press: [oController.onCloseProductPress, oController]
                     })
                   ]
                 }),
@@ -80,6 +85,7 @@ sap.ui.define(
                   content: new FlexBox({
                     wrap: 'Wrap',
                     fitContainer: true,
+                    alignItems: 'Center',
                     items: [
                       new Image({ src: '{/image}', height: '10rem' }),
                       new VBox({

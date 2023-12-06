@@ -83,7 +83,12 @@ sap.ui.define(
         this.getView().getParent().getParent().setLayout(sLayout);
       },
 
-      onEditProductPress: function (oEvent) {
+      onCloseProductPress: function () {
+        this._setProductPageLayout('OneColumn');
+        this.getRouter().navTo('products');
+      },
+
+      onEditProductPress: function () {
         this._setProductPageLayout('TwoColumnsMidExpanded');
 
         this.getRouter().navTo('productDetailEdit', {
@@ -91,7 +96,7 @@ sap.ui.define(
         });
       },
 
-      onDeleteProductPress: function (oEvent) {
+      onDeleteProductPress: function () {
         const oModel = new JSONModel(),
           oPage = this.byId('productDetailPage'),
           sProductName = oPage.getModel().getProperty('/name');
